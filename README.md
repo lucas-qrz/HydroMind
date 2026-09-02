@@ -1,6 +1,6 @@
-# HydroMind - Protótipo IoT
+# HydroMind - Água Alerta
 
-Protótipo navegável de um painel web para monitoramento de consumo de água por sensores IoT.
+Plataforma para monitoramento de consumo de água por sensores IoT, detecção de anomalias e alertas. A raiz contém o protótipo navegável do dashboard; o backend NestJS está em [`backend/`](backend/README.md).
 
 ## Como abrir
 

@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum OrganizationType {
+  RESIDENTIAL
+  CONDOMINIUM
+  COMPANY
+  INDUSTRY
+  SCHOOL
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+enum SensorStatus {
+  ACTIVE
+  INACTIVE
+  OFFLINE
+  MAINTENANCE
+}
+
+enum Granularity {
+  HOUR
+  DAY
+  MONTH
+}
+
+enum AnomalyType {
+  CONTINUOUS_FLOW
+  UNUSUAL_INCREASE
+  NIGHT_CONSUMPTION
+  SPIKE
+  SENSOR_OFFLINE
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AnomalyStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+enum AlertStatus {
+  NEW
+  READ
+  CLOSED
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model User {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  name                   String
+  email                  String                  @unique
+  passwordHash           String
+  status                 UserStatus              @default(ACTIVE)
+  memberships            Membership[]
+  refreshTokens          RefreshToken[]
+  passwordResetTokens    PasswordResetToken[]
+  notificationPreference NotificationPreference?
+  auditLogs              AuditLog[]              @relation("AuditActor")
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+model Organization {
+  id           String                 @id @default(uuid()) @db.Uuid
+  name         String
+  type         OrganizationType
+  memberships  Membership[]
+  sites        Site[]
+  aggregates   ConsumptionAggregate[]
+  tariffs      Tariff[]
+  anomalies    Anomaly[]
+  alerts       Alert[]
+  subscription Subscription?
+  auditLogs    AuditLog[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+}
+
+model Membership {
+  userId         String         @db.Uuid
+  organizationId String         @db.Uuid
+  role           MembershipRole
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, organizationId])
+  @@index([organizationId, role])
+}
+
+model Site {
+  id             String                 @id @default(uuid()) @db.Uuid
+  organizationId String                 @db.Uuid
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  timezone       String                 @default("America/Sao_Paulo")
+  address        String?
+  zones          Zone[]
+  sensors        Sensor[]
+  aggregates     ConsumptionAggregate[]
+  tariffs        Tariff[]
+  anomalies      Anomaly[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@index([organizationId])
+}
+
+model Zone {
+  id          String   @id @default(uuid()) @db.Uuid
+  siteId      String   @db.Uuid
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  sensors     Sensor[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([siteId])
+}
+
+model Sensor {
+  id              String                 @id @default(uuid()) @db.Uuid
+  siteId          String                 @db.Uuid
+  zoneId          String?                @db.Uuid
+  site            Site                   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  zone            Zone?                  @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  serialNumber    String                 @unique
+  name            String
+  status          SensorStatus           @default(ACTIVE)
+  lastSeenAt      DateTime?
+  firmwareVersion String?
+  credentials     SensorCredential[]
+  readings        TelemetryReading[]
+  aggregates      ConsumptionAggregate[]
+  anomalies       Anomaly[]
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([siteId])
+  @@index([zoneId])
+}
+
+model SensorCredential {
+  id         String    @id @default(uuid()) @db.Uuid
+  sensorId   String    @db.Uuid
+  sensor     Sensor    @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  secretHash String
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+
+  @@index([sensorId, revokedAt])
+}
+
+model TelemetryReading {
+  id                String   @id @default(uuid()) @db.Uuid
+  sensorId          String   @db.Uuid
+  sensor            Sensor   @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  timestamp         DateTime
+  flowRate          Float?
+  volumeDelta       Float
+  totalVolume       Float?
+  batteryLevel      Int?
+  signalStrength    Int?
+  externalReadingId String?
+  createdAt         DateTime @default(now())
+
+  @@unique([sensorId, externalReadingId])
+  @@index([sensorId, timestamp])
+}
+
+model ConsumptionAggregate {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  siteId         String       @db.Uuid
+  sensorId       String?      @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  sensor         Sensor?      @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  scopeKey       String
+  bucketStart    DateTime
+  granularity    Granularity
+  volume         Float
+
+  @@unique([scopeKey, bucketStart, granularity])
+  @@index([organizationId, bucketStart, granularity])
+}
+
+model Tariff {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  siteId         String?      @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site?        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  currency       String       @default("BRL")
+  pricePerM3     Float
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, siteId, effectiveFrom])
+}
+
+model Anomaly {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String        @db.Uuid
+  siteId         String        @db.Uuid
+  sensorId       String?       @db.Uuid
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  sensor         Sensor?       @relation(fields: [sensorId], references: [id], onDelete: SetNull)
+  type           AnomalyType
+  severity       Severity
+  score          Float
+  startedAt      DateTime
+  endedAt        DateTime?
+  status         AnomalyStatus @default(OPEN)
+  explanation    String
+  evidence       Json
+  alerts         Alert[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId, status, createdAt])
+  @@index([sensorId, type, createdAt])
+}
+
+model Alert {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  anomalyId      String?      @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  anomaly        Anomaly?     @relation(fields: [anomalyId], references: [id], onDelete: SetNull)
+  type           String
+  severity       Severity
+  title          String
+  message        String
+  status         AlertStatus  @default(NEW)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, status, createdAt])
+}
+
+model NotificationPreference {
+  userId     String   @id @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inApp      Boolean  @default(true)
+  email      Boolean  @default(false)
+  push       Boolean  @default(false)
+  quietHours Json?
+  updatedAt  DateTime @updatedAt
+}
+
+model Subscription {
+  id                 String             @id @default(uuid()) @db.Uuid
+  organizationId     String             @unique @db.Uuid
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan               String             @default("MVP")
+  status             SubscriptionStatus @default(TRIAL)
+  startsAt           DateTime           @default(now())
+  endsAt             DateTime?
+  externalCustomerId String?
+  updatedAt          DateTime           @updatedAt
+}
+
+model AuditLog {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  actorUserId    String?      @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor          User?        @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  action         String
+  resourceType   String
+  resourceId     String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, revokedAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, usedAt, expiresAt])
+}
