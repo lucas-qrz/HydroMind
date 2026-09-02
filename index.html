@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Protótipo de monitoramento inteligente do consumo de água">
+  <title>HydroMind | Painel IoT</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#visao-geral" aria-label="HydroMind - início">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span><strong>Hydro</strong><small>MIND</small></span>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a class="nav-link active" href="#visao-geral" data-section="visao-geral"><span>⌂</span>Visão geral</a>
+        <a class="nav-link" href="#consumo" data-section="consumo"><span>◔</span>Consumo</a>
+        <a class="nav-link" href="#ambientes" data-section="ambientes"><span>⌘</span>Ambientes</a>
+        <a class="nav-link" href="#sensores" data-section="sensores"><span>⌁</span>Sensores</a>
+        <a class="nav-link" href="#alertas" data-section="alertas"><span>!</span>Alertas <b id="alertBadge">2</b></a>
+      </nav>
+
+      <div class="sidebar-card">
+        <span class="status-dot"></span>
+        <div><strong>Sistema online</strong><small>5 sensores conectados</small></div>
+      </div>
+      <button class="profile" type="button">
+        <span class="avatar">GM</span><span><strong>Grupo Monitor</strong><small>Projeto acadêmico</small></span><span>›</span>
+      </button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <div>
+          <p class="eyebrow">MONITORAMENTO EM TEMPO REAL</p>
+          <h1>Bom dia, equipe <span>👋</span></h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="live-pill"><i></i> Atualizado agora</span>
+          <button class="icon-button" type="button" aria-label="Notificações">♢<b>2</b></button>
+        </div>
+      </header>
+
+      <section class="hero" id="visao-geral">
+        <div>
+          <span class="hero-label">STATUS GERAL</span>
+          <h2>Seu consumo está <em>8% menor</em><br>que no mês passado.</h2>
+          <p>Continue assim! Você economizou aproximadamente <strong>1.240 litros</strong> em setembro.</p>
+          <a class="primary-button" href="#consumo">Ver análise completa <span>→</span></a>
+        </div>
+        <div class="water-orbit" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="drop"><span>−8%</span><small>este mês</small></div>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Indicadores principais">
+        <article class="metric-card">
+          <div class="metric-icon blue">≈</div><div class="metric-title"><span>Consumo hoje</span><span class="trend down">↓ 12%</span></div>
+          <strong><span id="todayValue">482</span> <small>L</small></strong><p>Meta diária: 560 L</p>
+          <div class="progress"><span style="width: 72%"></span></div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-icon cyan">◷</div><div class="metric-title"><span>Vazão agora</span><span class="trend neutral">normal</span></div>
+          <strong><span id="flowValue">4,2</span> <small>L/min</small></strong><p>Atualização a cada 5 segundos</p>
+          <div class="sparkline" id="sparkline" aria-label="Histórico recente da vazão"></div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-icon purple">↗</div><div class="metric-title"><span>Previsão mensal</span><span class="trend down">↓ R$ 18</span></div>
+          <strong>13,8 <small>m³</small></strong><p>Estimativa: <b>R$ 126,40</b></p>
+          <div class="progress purple-progress"><span style="width: 66%"></span></div>
+        </article>
+        <article class="metric-card alert-metric">
+          <div class="metric-icon amber">!</div><div class="metric-title"><span>Alertas ativos</span><span class="trend warning">atenção</span></div>
+          <strong><span id="activeAlerts">2</span> <small>ocorrências</small></strong><p>1 possível vazamento detectado</p>
+          <button type="button" data-scroll="#alertas">Revisar alertas →</button>
+        </article>
+      </section>
+
+      <section class="dashboard-grid" id="consumo">
+        <article class="panel consumption-panel">
+          <div class="panel-heading">
+            <div><span class="section-label">CONSUMO</span><h3>Uso de água</h3></div>
+            <div class="period-tabs" role="group" aria-label="Período do gráfico">
+              <button class="active" data-period="day">Dia</button><button data-period="week">Semana</button><button data-period="month">Mês</button>
+            </div>
+          </div>
+          <div class="chart-summary"><strong id="chartTotal">482 L</strong><span id="chartComparison">↓ 12% comparado a ontem</span></div>
+          <div class="bar-chart" id="barChart" aria-label="Gráfico de consumo ao longo do dia"></div>
+          <div class="chart-axis" id="chartAxis"></div>
+        </article>
+
+        <article class="panel distribution-panel" id="ambientes">
+          <div class="panel-heading"><div><span class="section-label">DISTRIBUIÇÃO</span><h3>Consumo por ambiente</h3></div><button class="more" aria-label="Mais opções">•••</button></div>
+          <div class="donut-row">
+            <div class="donut" role="img" aria-label="Cozinha 38%, banheiro 31%, lavanderia 22%, área externa 9%"><div><strong>13,8</strong><small>m³ no mês</small></div></div>
+            <ul class="legend">
+              <li><i class="kitchen"></i><span>Cozinha<small>5,2 m³</small></span><strong>38%</strong></li>
+              <li><i class="bathroom"></i><span>Banheiro<small>4,3 m³</small></span><strong>31%</strong></li>
+              <li><i class="laundry"></i><span>Lavanderia<small>3,0 m³</small></span><strong>22%</strong></li>
+              <li><i class="outside"></i><span>Área externa<small>1,3 m³</small></span><strong>9%</strong></li>
+            </ul>
+          </div>
+          <div class="insight"><span>✦</span><p><strong>Maior oportunidade de economia</strong>A cozinha concentrou o maior gasto neste mês.</p></div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid lower-grid">
+        <article class="panel" id="alertas">
+          <div class="panel-heading"><div><span class="section-label">ATENÇÃO NECESSÁRIA</span><h3>Alertas recentes</h3></div><button class="text-button" id="resolveAll">Marcar todos como lidos</button></div>
+          <div class="alerts-list" id="alertsList">
+            <div class="alert-row danger" data-alert>
+              <span class="alert-icon">!</span><div><strong>Possível vazamento</strong><p>Fluxo contínuo detectado no banheiro por 18 minutos.</p><small>Há 6 minutos • Sensor BAN-01</small></div><button class="resolve-button">Verificar</button>
+            </div>
+            <div class="alert-row warning-row" data-alert>
+              <span class="alert-icon">↗</span><div><strong>Consumo acima da média</strong><p>A lavanderia ultrapassou em 21% a média diária.</p><small>Hoje, 09:42 • Sensor LAV-01</small></div><button class="resolve-button">Analisar</button>
+            </div>
+          </div>
+          <div class="empty-alerts" id="emptyAlerts"><span>✓</span><strong>Tudo em ordem</strong><p>Nenhum alerta precisa de atenção.</p></div>
+        </article>
+
+        <article class="panel" id="sensores">
+          <div class="panel-heading"><div><span class="section-label">REDE IOT</span><h3>Status dos sensores</h3></div><span class="online-count">5/5 online</span></div>
+          <div class="sensor-list">
+            <div><span class="sensor-signal">⌁</span><p><strong>Entrada principal</strong><small>ENT-01 • 78% bateria</small></p><span class="sensor-online">Online</span></div>
+            <div><span class="sensor-signal">⌁</span><p><strong>Cozinha</strong><small>COZ-01 • 91% bateria</small></p><span class="sensor-online">Online</span></div>
+            <div><span class="sensor-signal">⌁</span><p><strong>Banheiro</strong><small>BAN-01 • 64% bateria</small></p><span class="sensor-online">Online</span></div>
+            <div><span class="sensor-signal">⌁</span><p><strong>Lavanderia</strong><small>LAV-01 • 86% bateria</small></p><span class="sensor-online">Online</span></div>
+            <div><span class="sensor-signal">⌁</span><p><strong>Área externa</strong><small>EXT-01 • 72% bateria</small></p><span class="sensor-online">Online</span></div>
+          </div>
+        </article>
+      </section>
+
+      <footer><span>Protótipo acadêmico • Dados simulados</span><span>Última sincronização: <b id="syncTime">agora</b></span></footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
