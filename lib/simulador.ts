@@ -172,9 +172,29 @@ function distribuirEvento(
   }
 }
 
-/** Amostra de uma Poisson — o número de eventos por dia não é fixo. */
+/**
+ * Amostra de uma Poisson — o número de eventos por dia não é fixo.
+ *
+ * O método de Knuth (multiplicar uniformes até cruzar e^-média) só serve para
+ * médias pequenas: `Math.exp(-800)` arredonda para 0 em ponto flutuante, o
+ * limite vira zero e o laço nunca termina. Isso trava numa residência isolada,
+ * mas aparece na hora de simular um bloco inteiro de condomínio, onde a média
+ * de descargas por dia passa das centenas.
+ *
+ * Acima de 30, a Poisson é bem aproximada por uma normal de mesma média e
+ * variância — e aí o custo deixa de crescer com a média.
+ */
 function amostrarPoisson(media: number, rnd: () => number): number {
   if (media <= 0) return 0;
+
+  if (media > 30) {
+    // Box-Muller para a normal, com correção de continuidade.
+    const u1 = Math.max(rnd(), Number.EPSILON);
+    const u2 = rnd();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    return Math.max(0, Math.round(media + z * Math.sqrt(media)));
+  }
+
   const limite = Math.exp(-media);
   let k = 0;
   let p = 1;

@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
+/*
+ * Sistema visual do Água Alerta.
+ *
+ * São dois mundos visuais no mesmo aplicativo, e isso é intencional:
+ *
+ *   - o SITE (/) é claro. Ele fala com quem ainda não conhece o produto e
+ *     precisa parecer convidativo e confiável.
+ *   - o PAINEL (/painel) é escuro. Ele é operado todos os dias por quem já é
+ *     cliente; fundo escuro reduz o cansaço visual e faz a cor de alerta
+ *     saltar da tela.
+ *
+ * Para não manter duas paletas, os tokens têm os mesmos nomes nos dois casos
+ * e só trocam de valor dentro de `.painel`. Todo componente usa o token, nunca
+ * a cor literal — assim o mesmo componente funciona nos dois contextos.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Superfícies */
+  --fundo: #fbfcfd;
+  --superficie: #ffffff;
+  --superficie-2: #edf4f8;
+  --linha: #dce8ef;
+  --linha-suave: #eaf2f6;
+
+  /* Texto */
+  --tinta: #06182b;
+  --tinta-2: #4a697f;
+  --tinta-3: #8aa5b5;
+
+  /* Marca */
+  --agua: #0c6e8e;
+  --agua-fundo: #e3f1f7;
+
+  /* Semânticas — separadas da marca de propósito: um vazamento nunca pode
+     se confundir visualmente com um botão. */
+  --critico: #c4443a;
+  --critico-fundo: #fbeceb;
+  --alerta: #b87309;
+  --alerta-fundo: #fcf3e3;
+  --bom: #17795c;
+  --bom-fundo: #e6f4ef;
 }
 
+/* Painel: mesma nomenclatura, valores do mundo escuro. */
+.painel {
+  --fundo: #071e31;
+  --superficie: #0b2438;
+  --superficie-2: #102e47;
+  --linha: #1b4160;
+  --linha-suave: #132f47;
+
+  --tinta: #e9f4fa;
+  --tinta-2: #a8c4d6;
+  --tinta-3: #6d8ea6;
+
+  --agua: #35c4e8;
+  --agua-fundo: #12354b;
+
+  --critico: #ff6b5b;
+  --critico-fundo: #3a1a17;
+  --alerta: #f0a63c;
+  --alerta-fundo: #3a2a11;
+  --bom: #4fd1a5;
+  --bom-fundo: #10352b;
+}
+
+/*
+ * `@theme inline` faz as utilidades do Tailwind apontarem para a variável em
+ * vez de resolvê-la na build. É o que permite `bg-superficie` mudar de cor
+ * sozinha ao entrar em `.painel`.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-linha: var(--linha);
+  --color-linha-suave: var(--linha-suave);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-tinta-3: var(--tinta-3);
+
+  --color-agua: var(--agua);
+  --color-agua-fundo: var(--agua-fundo);
+
+  --color-critico: var(--critico);
+  --color-critico-fundo: var(--critico-fundo);
+  --color-alerta: var(--alerta);
+  --color-alerta-fundo: var(--alerta-fundo);
+  --color-bom: var(--bom);
+  --color-bom-fundo: var(--bom-fundo);
+
+  --font-sans: var(--fonte-sans);
+  --font-mono: var(--fonte-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: var(--fonte-sans), "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * O `body` fica fora de `.painel`, então mantém o fundo claro do site. Isso
+ * faz aparecer uma faixa branca em qualquer área que a div do painel não
+ * cobre — o rebote do scroll, ou uma tela mais alta que o conteúdo.
+ * Pintar o body quando ele contém um painel resolve sem duplicar layout.
+ */
+body:has(.painel) {
+  background: #071e31;
+}
+
+/*
+ * Títulos usam Archivo em largura expandida. É o que dá a personalidade
+ * "instrumento de medição" à marca, em vez de mais uma gotinha azul genérica.
+ */
+.titulo {
+  font-stretch: 116%;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.titulo-md {
+  font-stretch: 110%;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* Rótulo pequeno em maiúsculas — usado nos KPIs e cabeçalhos de seção. */
+.rotulo {
+  font-family: var(--fonte-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
+ * Todo número é tabular. Numa tabela de consumo, dígitos de larguras
+ * diferentes fazem as colunas dançarem a cada atualização.
+ */
+.num {
+  font-family: var(--fonte-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco visível — obrigatório para quem navega por teclado. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--agua);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
