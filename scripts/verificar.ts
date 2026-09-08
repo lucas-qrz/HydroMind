@@ -11,6 +11,7 @@ import {
   calcularConta,
   calcularImpactoVazamento,
   projetarConsumoMes,
+  parcelasADeduzir,
   formatarReais,
   TARIFA_SANASA_RESIDENCIAL,
 } from "../lib/tarifa";
@@ -96,16 +97,39 @@ for (const a of anomalias) {
 
 titulo("3. TARIFA PROGRESSIVA — por que economizar vale mais que o litro");
 
-console.log(`Tarifa: ${TARIFA_SANASA_RESIDENCIAL.nome}`);
-console.log(`${TARIFA_SANASA_RESIDENCIAL.estimativa ? "⚠  VALORES ESTIMADOS — substituir pela tabela oficial\n" : ""}`);
+console.log(`Tarifa: ${TARIFA_SANASA_RESIDENCIAL.nome} — vigente desde ${TARIFA_SANASA_RESIDENCIAL.vigenteDesde}`);
+console.log("⚠  Faixa 1 e percentuais de esgoto são OFICIAIS; faixas 2 a 5 são estimativa.\n");
 
 for (const m3 of [8, 15, 25, 35]) {
   const c = calcularConta(m3);
   console.log(
     `  ${String(m3).padStart(2)} m³ → ${formatarReais(c.total).padStart(10)}  ` +
-      `(faixa ${c.faixaAtingida + 1}: ${c.rotuloFaixaAtingida})`,
+      `(água ${formatarReais(c.agua)} + esgoto ${formatarReais(c.esgoto)})  ` +
+      `faixa ${c.faixaAtingida + 1}`,
   );
 }
+
+// Confere contra o mínimo oficial divulgado pela Sanasa.
+const minimo = calcularConta(10);
+console.log(
+  `\n  Conferência do mínimo oficial (10 m³):\n` +
+    `    água        ${formatarReais(minimo.agua).padStart(9)}  (oficial R$ 53,65)\n` +
+    `    coleta      ${formatarReais(minimo.coleta).padStart(9)}  (oficial R$ 42,92)\n` +
+    `    tratamento  ${formatarReais(minimo.tratamento).padStart(9)}  (oficial R$ 23,07)`,
+);
+
+const deducoes = parcelasADeduzir();
+console.log("\n  Parcela a deduzir por faixa (formato da fatura Sanasa):");
+TARIFA_SANASA_RESIDENCIAL.faixas.forEach((f, i) => {
+  console.log(
+    `    faixa ${i + 1}  R$ ${f.precoM3.toFixed(3).replace(".", ",")}/m³   deduzir ${formatarReais(deducoes[i]).padStart(9)}`,
+  );
+});
+const conferencia = 25 * TARIFA_SANASA_RESIDENCIAL.faixas[2].precoM3 - deducoes[2];
+console.log(
+  `    25 m³ pela fórmula da fatura: 25 × 9,94 − ${formatarReais(deducoes[2])} = ` +
+    `${formatarReais(conferencia)}  ${Math.abs(conferencia - calcularConta(25).agua) < 0.01 ? "✓ bate com o cálculo cumulativo" : "✗ divergente"}`,
+);
 
 const c20 = calcularConta(20);
 const c21 = calcularConta(21);

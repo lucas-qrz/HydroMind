@@ -40,8 +40,22 @@ export interface Tarifa {
   faixas: FaixaTarifaria[];
   /** Volume mínimo faturado, em m³. Consumir menos que isso não reduz a conta. */
   consumoMinimoM3: number;
-  /** Esgoto como fração do valor da água (0.8 = 80%). */
-  percentualEsgoto: number;
+  /**
+   * Coleta de esgoto como fração do valor da água.
+   * Na Sanasa é 0,80 — verificado pela razão entre os mínimos oficiais
+   * (R$ 42,92 ÷ R$ 53,65 = 0,80 exato).
+   */
+  percentualColeta: number;
+  /**
+   * Tratamento de esgoto como fração do valor da água.
+   * Na Sanasa é 0,43 (R$ 23,07 ÷ R$ 53,65).
+   *
+   * Atenção: água + coleta + tratamento significa que o esgoto soma 123% do
+   * valor da água, não 80%. Tratar esgoto como uma parcela única de 80%
+   * subestima a conta em cerca de 24% — erro que a primeira versão deste
+   * arquivo cometia.
+   */
+  percentualTratamento: number;
   vigenteDesde: string;
   /** De onde vieram os números. Obrigatório — o trabalho precisa citar a fonte. */
   fonte: string;
@@ -63,6 +77,11 @@ export interface Conta {
   /** Volume efetivamente faturado (nunca menor que o consumo mínimo). */
   consumoFaturadoM3: number;
   agua: number;
+  /** Coleta de esgoto. */
+  coleta: number;
+  /** Tratamento de esgoto. */
+  tratamento: number;
+  /** coleta + tratamento. */
   esgoto: number;
   total: number;
   /** Índice (base 0) da faixa mais alta que o consumo alcançou. */
@@ -72,25 +91,40 @@ export interface Conta {
 }
 
 /**
- * ESTIMATIVA — estrutura de faixas no padrão praticado pela Sanasa (Campinas),
- * com preços aproximados. Substituir pelos valores da tabela oficial.
+ * Tarifa residencial da Sanasa, vigente desde 05/02/2026 (reajuste de 5,17%
+ * fixado pela ARES-PCJ).
+ *
+ * O que é OFICIAL aqui:
+ *   - consumo mínimo de 10 m³ para a categoria residencial;
+ *   - faixa 1 a R$ 5,365/m³, derivada do mínimo divulgado de R$ 53,65 ÷ 10 m³;
+ *   - coleta a 80% e tratamento a 43% do valor da água, derivados dos mínimos
+ *     oficiais de R$ 42,92 e R$ 23,07 sobre os mesmos R$ 53,65.
+ *
+ * O que ainda é ESTIMATIVA:
+ *   - os preços das faixas 2 em diante. A tabela completa está na Resolução
+ *     Tarifária nº 01/2025, publicada em PDF no site da Sanasa, que bloqueia
+ *     acesso automatizado (Akamai). Precisa ser aberta manualmente no
+ *     navegador e os cinco números transcritos aqui.
  */
 export const TARIFA_SANASA_RESIDENCIAL: Tarifa = {
-  nome: "Sanasa — Residencial (estimativa)",
+  nome: "Sanasa — Residencial",
   categoria: "RESIDENCIAL",
   faixas: [
-    { ateM3: 10, precoM3: 5.42 },
-    { ateM3: 20, precoM3: 7.89 },
-    { ateM3: 30, precoM3: 9.94 },
-    { ateM3: 50, precoM3: 12.36 },
-    { ateM3: null, precoM3: 14.71 },
+    { ateM3: 10, precoM3: 5.365 }, // oficial: R$ 53,65 ÷ 10 m³
+    { ateM3: 20, precoM3: 7.89 }, // estimativa
+    { ateM3: 30, precoM3: 9.94 }, // estimativa
+    { ateM3: 50, precoM3: 12.36 }, // estimativa
+    { ateM3: null, precoM3: 14.71 }, // estimativa
   ],
   consumoMinimoM3: 10,
-  percentualEsgoto: 0.8,
-  vigenteDesde: "2026-01-01",
+  percentualColeta: 0.8,
+  percentualTratamento: 0.43,
+  vigenteDesde: "2026-02-05",
   fonte:
-    "Estimativa dos autores com base na estrutura tarifária da Sanasa/ARES-PCJ. " +
-    "Valores NÃO oficiais — substituir pela tabela publicada.",
+    "Sanasa / ARES-PCJ, reajuste de 5,17% vigente desde 05/02/2026. " +
+    "Mínimos oficiais: água R$ 53,65, coleta R$ 42,92, tratamento R$ 23,07 " +
+    "(10 m³). Faixas 2 a 5: estimativa dos autores — transcrever da " +
+    "Resolução Tarifária nº 01/2025.",
   estimativa: true,
 };
 
@@ -141,12 +175,16 @@ export function calcularConta(
   }
 
   const agua = parcelas.reduce((soma, p) => soma + p.valor, 0);
-  const esgoto = agua * tarifa.percentualEsgoto;
+  const coleta = agua * tarifa.percentualColeta;
+  const tratamento = agua * tarifa.percentualTratamento;
+  const esgoto = coleta + tratamento;
 
   return {
     consumoM3,
     consumoFaturadoM3: faturado,
     agua: arredondar(agua),
+    coleta: arredondar(coleta),
+    tratamento: arredondar(tratamento),
     esgoto: arredondar(esgoto),
     total: arredondar(agua + esgoto),
     faixaAtingida,
@@ -224,6 +262,41 @@ export function calcularImpactoVazamento(params: {
     litrosDesperdicados: Math.round(vazaoVazamentoLpm * 60 * 24 * diasRestantes),
     evitaSubirFaixa: contaCorrigida.faixaAtingida < contaComVazamento.faixaAtingida,
   };
+}
+
+/**
+ * "Parcela a deduzir" de cada faixa — o formato que aparece na fatura da Sanasa.
+ *
+ * A concessionária não soma faixa a faixa na conta impressa. Ela multiplica o
+ * consumo TOTAL pelo preço da faixa final e subtrai um valor fixo, a parcela a
+ * deduzir. O resultado é idêntico ao cálculo cumulativo — é só uma forma mais
+ * curta de escrever a mesma conta:
+ *
+ *     valor da água = consumo × preço da faixa − parcela a deduzir
+ *
+ * Vale a pena expor isso no painel: o cliente consegue conferir o número do
+ * app contra a fatura dele, linha por linha. Um app cujo valor não bate com o
+ * boleto perde a confiança do usuário na primeira conta.
+ */
+export function parcelasADeduzir(
+  tarifa: Tarifa = TARIFA_SANASA_RESIDENCIAL,
+): number[] {
+  const deducoes: number[] = [];
+
+  for (let i = 0; i < tarifa.faixas.length; i++) {
+    let deducao = 0;
+    let piso = 0;
+
+    for (let j = 0; j < i; j++) {
+      const teto = tarifa.faixas[j].ateM3 ?? 0;
+      deducao += (teto - piso) * (tarifa.faixas[i].precoM3 - tarifa.faixas[j].precoM3);
+      piso = teto;
+    }
+
+    deducoes.push(arredondar(deducao));
+  }
+
+  return deducoes;
 }
 
 export function formatarReais(valor: number): string {
