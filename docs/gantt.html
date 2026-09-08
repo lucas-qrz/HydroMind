@@ -121,6 +121,9 @@
   .marco{grid-row:1;align-self:center;justify-self:start;width:0;height:0;position:relative;z-index:3}
   .marco::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;background:var(--marco);transform:rotate(45deg);border-radius:2px}
   .marco span{position:absolute;left:11px;top:-8px;white-space:nowrap;font-family:var(--mono);font-size:.66rem;color:var(--marco);font-weight:600}
+  /* Marcos próximos da borda direita: rótulo à esquerda do losango, senão
+     o texto é cortado pelo limite do gráfico. */
+  .marco.esq span{left:auto;right:11px}
 
   .legenda{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;font-size:.79rem;color:var(--ink-2)}
   .legenda div{display:flex;align-items:center;gap:7px}
@@ -386,7 +389,7 @@
       <div class="g-row">
         <div class="g-lab">Lançamento comercial e primeiros clientes<span class="dep">depende de: MVP homologado</span></div>
         <div class="barra critica" style="grid-column:22/24"></div>
-        <div class="marco" style="grid-column:24"><span>Lançamento</span></div>
+        <div class="marco esq" style="grid-column:24"><span>Lançamento</span></div>
       </div>
       <div class="g-row">
         <div class="g-lab">Pós-venda, suporte e expansão</div>
