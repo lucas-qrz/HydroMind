@@ -1,0 +1,239 @@
+// Schema do Água Alerta — portado do backend NestJS original.
+//
+// Mudanças em relação à versão anterior (backend/prisma/schema.prisma):
+//
+//  1. Provider PostgreSQL → SQLite. O banco vira um arquivo, sem Docker e sem
+//     servidor para subir. Trocar de volta para Postgres em produção é mudar
+//     o `provider` e os tipos nativos.
+//
+//  2. `Tariff.pricePerM3: Float` foi substituído por `Tarifa` + `Faixa`.
+//     A versão antiga só conseguia representar um preço único por m³, o que
+//     não corresponde a nenhuma concessionária brasileira — todas cobram por
+//     faixas progressivas. Sem isso, a estimativa de conta erra e o principal
+//     argumento comercial do produto não pode ser calculado.
+//
+//  3. Removidas as tabelas de infraestrutura de autenticação (RefreshToken,
+//     PasswordResetToken, AuditLog, SensorCredential). Estão fora do escopo
+//     do protótipo e podem voltar quando houver login real.
+//
+//  4. Enums viraram String: SQLite não suporta enum nativo. Os valores
+//     aceitos estão documentados em cada campo.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Cliente contratante. Uma família, um condomínio, uma escola, uma empresa.
+/// A hierarquia Organizacao → Imovel → Zona → Sensor é o que permite atender
+/// B2C e B2B com o mesmo código: numa casa é 1 imóvel com 4 zonas; num
+/// condomínio são 118 imóveis mais as áreas comuns.
+model Organizacao {
+  id        String   @id @default(cuid())
+  nome      String
+  /// RESIDENCIA | CONDOMINIO | EMPRESA | ESCOLA | INDUSTRIA
+  tipo      String
+  cidade    String   @default("Campinas")
+  criadoEm  DateTime @default(now())
+
+  imoveis   Imovel[]
+  membros   Membro[]
+  tarifas   Tarifa[]
+}
+
+model Usuario {
+  id       String   @id @default(cuid())
+  nome     String
+  email    String   @unique
+  criadoEm DateTime @default(now())
+
+  membros  Membro[]
+}
+
+/// Vínculo entre pessoa e organização, com o papel que ela exerce.
+model Membro {
+  id             String @id @default(cuid())
+  usuarioId      String
+  organizacaoId  String
+  /// PROPRIETARIO | SINDICO | ADMINISTRADORA | MORADOR | TECNICO
+  papel          String
+
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  organizacao Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, organizacaoId])
+}
+
+/// Um endereço monitorado. Numa casa, é a própria casa; num condomínio, cada
+/// bloco ou cada unidade.
+model Imovel {
+  id            String @id @default(cuid())
+  organizacaoId String
+  nome          String
+  /// Quantas pessoas moram/trabalham aqui — usado para a linha de base.
+  ocupantes     Int    @default(1)
+
+  organizacao Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Cascade)
+  zonas       Zona[]
+  tarifas     Tarifa[]
+
+  @@index([organizacaoId])
+}
+
+/// Ponto de medição dentro do imóvel: cozinha, banheiro social, jardim,
+/// piscina, área comum. É o que permite dizer ONDE está vazando.
+model Zona {
+  id       String @id @default(cuid())
+  imovelId String
+  nome     String
+  /// COZINHA | BANHEIRO | AREA_SERVICO | JARDIM | PISCINA | AREA_COMUM | GERAL
+  tipo     String @default("GERAL")
+
+  imovel   Imovel   @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  sensores Sensor[]
+
+  @@index([imovelId])
+}
+
+model Sensor {
+  id           String    @id @default(cuid())
+  zonaId       String
+  /// Número de série gravado no equipamento.
+  serie        String    @unique
+  modelo       String    @default("HM-FLOW-01")
+  /// ONLINE | OFFLINE | MANUTENCAO
+  status       String    @default("ONLINE")
+  bateriaPct   Int?
+  sinalRssi    Int?
+  ultimoVisto  DateTime?
+  instaladoEm  DateTime  @default(now())
+
+  zona      Zona       @relation(fields: [zonaId], references: [id], onDelete: Cascade)
+  leituras  Leitura[]
+  anomalias Anomalia[]
+
+  @@index([zonaId])
+}
+
+/// Série temporal crua. É a tabela que mais cresce: um sensor reportando a
+/// cada 5 minutos gera ~8.640 linhas por mês.
+model Leitura {
+  id       String   @id @default(cuid())
+  sensorId String
+  ts       DateTime
+  /// Vazão instantânea em litros por minuto.
+  vazaoLpm Float
+  /// Volume consumido desde a leitura anterior, em litros.
+  volumeL  Float
+
+  sensor Sensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+
+  @@index([sensorId, ts])
+}
+
+/// Consumo pré-somado por hora e por dia. Existe para o painel não precisar
+/// varrer milhares de linhas cruas a cada carregamento.
+model Agregado {
+  id           String   @id @default(cuid())
+  zonaId       String
+  /// HORA | DIA | MES
+  granularidade String
+  inicio       DateTime
+  volumeL      Float
+  vazaoMediaLpm Float
+
+  @@unique([zonaId, granularidade, inicio])
+  @@index([zonaId, inicio])
+}
+
+/// Tarifa de água com faixas progressivas.
+///
+/// Substitui o `pricePerM3` único da versão anterior. A conta é calculada
+/// somando, faixa a faixa, o preço do m³ dentro de cada uma — ver
+/// `lib/tarifa.ts`, função `calcularConta`.
+model Tarifa {
+  id             String    @id @default(cuid())
+  organizacaoId  String
+  /// Quando preenchido, a tarifa vale só para este imóvel.
+  imovelId       String?
+  nome           String
+  /// RESIDENCIAL | RESIDENCIAL_SOCIAL | COMERCIAL | INDUSTRIAL | PUBLICA
+  categoria      String    @default("RESIDENCIAL")
+  moeda          String    @default("BRL")
+  /// Volume mínimo faturado em m³ — cobrado mesmo com consumo menor.
+  consumoMinimoM3 Float    @default(10)
+  /// Esgoto como fração do valor da água (0.8 = 80%).
+  percentualEsgoto Float   @default(0.8)
+  vigenteDe      DateTime
+  vigenteAte     DateTime?
+  /// De onde vieram os valores. Obrigatório para citação no trabalho.
+  fonte          String
+  /// true enquanto os preços forem estimados e não oficiais.
+  estimativa     Boolean   @default(true)
+
+  organizacao Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Cascade)
+  imovel      Imovel?     @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  faixas      Faixa[]
+
+  @@index([organizacaoId, imovelId, vigenteDe])
+}
+
+/// Uma faixa da tarifa progressiva. Ordem crescente por `ateM3`.
+model Faixa {
+  id       String @id @default(cuid())
+  tarifaId String
+  ordem    Int
+  /// Limite superior da faixa em m³. `null` = última faixa, sem limite.
+  ateM3    Float?
+  /// Preço do m³ dentro desta faixa.
+  precoM3  Float
+
+  tarifa Tarifa @relation(fields: [tarifaId], references: [id], onDelete: Cascade)
+
+  @@unique([tarifaId, ordem])
+}
+
+/// Detecção feita pelo motor. Uma anomalia vira Alerta quando merece a
+/// atenção de uma pessoa.
+model Anomalia {
+  id         String   @id @default(cuid())
+  sensorId   String
+  /// FLUXO_CONTINUO | CONSUMO_MADRUGADA | DESVIO_BASELINE | ASSINATURA_VAZAO
+  tipo       String
+  /// CRITICA | ALTA | MEDIA | BAIXA
+  severidade String
+  /// 0 a 1 — confiança do detector.
+  confianca  Float
+  /// Frase pronta para exibir ao usuário, sem jargão.
+  explicacao String
+  /// Números que sustentam a explicação, serializados em JSON.
+  evidencia  String
+  iniciadoEm DateTime
+  detectadoEm DateTime @default(now())
+
+  sensor Sensor  @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  alerta Alerta?
+
+  @@index([sensorId, detectadoEm])
+}
+
+model Alerta {
+  id         String    @id @default(cuid())
+  anomaliaId String    @unique
+  /// ABERTO | RECONHECIDO | RESOLVIDO | FALSO_POSITIVO
+  status     String    @default("ABERTO")
+  /// Litros perdidos estimados até o momento.
+  litrosPerdidos Float?
+  /// Quanto custa deixar como está até o fim do mês, em reais.
+  custoEstimado  Float?
+  criadoEm   DateTime  @default(now())
+  resolvidoEm DateTime?
+
+  anomalia Anomalia @relation(fields: [anomaliaId], references: [id], onDelete: Cascade)
+
+  @@index([status, criadoEm])
+}
