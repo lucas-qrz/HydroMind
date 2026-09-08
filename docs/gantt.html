@@ -1,0 +1,483 @@
+<title>Cronograma Água Alerta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#FBFCFD;
+    --surface:#FFFFFF;
+    --surface-2:#F1F6F9;
+    --line:#DAE5EC;
+    --line-soft:#E9F0F4;
+    --ink:#0A1E30;
+    --ink-2:#456175;
+    --ink-3:#7794A8;
+    --agua:#0E7FA3;
+    --agua-claro:#8FD4E8;
+    --critico:#C4443A;
+    --critico-claro:#F0BDB7;
+    --marco:#B87309;
+    --grade-hoje:#C4443A;
+
+    --sans:'Archivo','Segoe UI',system-ui,sans-serif;
+    --mono:'IBM Plex Mono','Consolas',ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#06182B;
+      --surface:#0B2438;
+      --surface-2:#102E47;
+      --line:#1B4160;
+      --line-soft:#132F47;
+      --ink:#E9F4FA;
+      --ink-2:#A8C4D6;
+      --ink-3:#6D8EA6;
+      --agua:#35C4E8;
+      --agua-claro:#1B6D89;
+      --critico:#FF6B5B;
+      --critico-claro:#7A2E28;
+      --marco:#F0A63C;
+      --grade-hoje:#FF6B5B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#06182B;
+    --surface:#0B2438;
+    --surface-2:#102E47;
+    --line:#1B4160;
+    --line-soft:#132F47;
+    --ink:#E9F4FA;
+    --ink-2:#A8C4D6;
+    --ink-3:#6D8EA6;
+    --agua:#35C4E8;
+    --agua-claro:#1B6D89;
+    --critico:#FF6B5B;
+    --critico-claro:#7A2E28;
+    --marco:#F0A63C;
+    --grade-hoje:#FF6B5B;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  h1,h2,h3{margin:0;text-wrap:balance;font-weight:700}
+  h1{font-size:clamp(1.9rem,4.4vw,2.9rem);font-stretch:116%;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:1.32rem;font-stretch:110%;letter-spacing:-.01em}
+  h3{font-size:1rem;font-stretch:105%}
+  p{margin:0}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--agua)}
+  .note{font-size:.88rem;color:var(--ink-2);max-width:70ch}
+  .mono{font-family:var(--mono)}
+
+  header{padding:52px 0 30px}
+  section{padding:34px 0;border-top:1px solid var(--line-soft)}
+  .head{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+
+  /* premissas */
+  .premissas{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .prem{background:var(--surface);padding:14px 16px}
+  .prem .k{font-family:var(--mono);font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+  .prem .v{font-size:.92rem;font-weight:600;line-height:1.35}
+  .prem .v small{display:block;font-weight:400;font-size:.79rem;color:var(--ink-2);margin-top:2px}
+
+  /* gantt */
+  .gantt-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+  .gantt{min-width:940px}
+
+  .g-row{display:grid;grid-template-columns:250px repeat(24,1fr);align-items:center;border-bottom:1px solid var(--line-soft)}
+  .g-row:last-child{border-bottom:0}
+
+  .g-head{position:sticky;top:0;background:var(--surface-2);border-bottom:1px solid var(--line);z-index:2}
+  .g-head .g-lab{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px 14px}
+  .g-mes{grid-row:1;text-align:center;font-family:var(--mono);font-size:.68rem;color:var(--ink-2);padding:10px 0;border-left:1px solid var(--line)}
+
+  .g-lab{padding:8px 14px;font-size:.84rem;line-height:1.3;border-right:1px solid var(--line)}
+  .g-lab .dep{display:block;font-family:var(--mono);font-size:.66rem;color:var(--ink-3);margin-top:1px}
+
+  .g-fase{background:var(--surface-2)}
+  .g-fase .g-lab{font-weight:700;font-size:.86rem;font-stretch:106%}
+  .g-fase .g-lab i{font-style:normal;font-family:var(--mono);font-size:.7rem;color:var(--agua);margin-right:6px}
+
+  /* Linhas verticais de mês, desenhadas como fundo da própria linha em vez de
+     720 células vazias. O gradiente divide a área das barras em 12 partes. */
+  .g-row::before{
+    content:"";grid-row:1;grid-column:2/26;height:100%;min-height:30px;
+    background:repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(100% / 12 - 1px),
+      var(--line-soft) calc(100% / 12 - 1px),
+      var(--line-soft) calc(100% / 12)
+    );
+  }
+  .g-head::before{display:none}
+
+  .barra{grid-row:1;height:15px;border-radius:3px;background:var(--agua-claro);border:1px solid var(--agua);align-self:center;position:relative;z-index:1;margin:0 1px}
+  .barra.critica{background:var(--critico-claro);border-color:var(--critico)}
+  .barra.fase{height:7px;border-radius:2px;background:var(--agua);border-color:var(--agua);opacity:.55}
+  .barra.fase.critica{background:var(--critico);border-color:var(--critico)}
+
+  .marco{grid-row:1;align-self:center;justify-self:start;width:0;height:0;position:relative;z-index:3}
+  .marco::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;background:var(--marco);transform:rotate(45deg);border-radius:2px}
+  .marco span{position:absolute;left:11px;top:-8px;white-space:nowrap;font-family:var(--mono);font-size:.66rem;color:var(--marco);font-weight:600}
+
+  .legenda{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;font-size:.79rem;color:var(--ink-2)}
+  .legenda div{display:flex;align-items:center;gap:7px}
+  .sw{width:22px;height:10px;border-radius:2px;flex:none}
+  .sw.n{background:var(--agua-claro);border:1px solid var(--agua)}
+  .sw.c{background:var(--critico-claro);border:1px solid var(--critico)}
+  .sw.m{width:11px;height:11px;background:var(--marco);transform:rotate(45deg);border-radius:2px}
+
+  /* caminho critico */
+  .cc{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:6px}
+  .cc span{font-family:var(--mono);font-size:.76rem;padding:5px 11px;border-radius:4px;background:var(--critico-claro);color:var(--ink);border:1px solid var(--critico)}
+  .cc b{color:var(--critico);font-size:.9rem}
+
+  /* sprint academica */
+  table.sprint{width:100%;border-collapse:collapse;font-size:.87rem}
+  table.sprint th,table.sprint td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line-soft)}
+  table.sprint th{font-family:var(--mono);font-size:.65rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  table.sprint td.d{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink-2)}
+  table.sprint tr.entrega td{background:var(--surface-2);font-weight:600}
+  table.sprint td.st{font-family:var(--mono);font-size:.74rem}
+  .ok{color:var(--agua);font-weight:600}
+
+  footer{padding:32px 0 52px;border-top:1px solid var(--line-soft);color:var(--ink-3);font-size:.81rem}
+
+  @media (max-width:640px){
+    .g-row{grid-template-columns:170px repeat(24,1fr)}
+    .g-lab{font-size:.78rem;padding:7px 10px}
+  }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Hydro Mind · Água Alerta</div>
+  <h1 style="margin-top:12px">Cronograma do Projeto</h1>
+  <p class="note" style="margin-top:14px">
+    Diagrama de Gantt das dez frentes da Estrutura Analítica do Projeto, com
+    dependências, marcos e caminho crítico. Horizonte de doze meses, de outubro
+    de 2026 a setembro de 2027.
+  </p>
+</header>
+
+<section style="border-top:0;padding-top:8px">
+  <div class="premissas">
+    <div class="prem"><div class="k">Início</div><div class="v">Out / 2026<small>após aprovação do Termo de Abertura</small></div></div>
+    <div class="prem"><div class="k">Duração</div><div class="v">12 meses<small>encerramento em set / 2027</small></div></div>
+    <div class="prem"><div class="k">Equipe</div><div class="v">12 colaboradores<small>hardware, software, dados/IA e atendimento</small></div></div>
+    <div class="prem"><div class="k">Orçamento</div><div class="v">R$ 250 mil<small>aporte de investidor-anjo</small></div></div>
+    <div class="prem"><div class="k">Sede</div><div class="v">Campinas / SP<small>espaço compartilhado</small></div></div>
+    <div class="prem"><div class="k">Piloto</div><div class="v">Condomínios<small>bairros centrais de Campinas</small></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="head">
+    <h2>Diagrama de Gantt</h2>
+    <p class="note">
+      Cada linha é uma atividade; a coluna da esquerda indica de qual atividade
+      ela depende. As barras em vermelho estão no caminho crítico — qualquer
+      atraso nelas empurra a data final do projeto.
+    </p>
+  </div>
+
+  <div class="gantt-scroll">
+    <div class="gantt">
+
+      <!-- cabeçalho de meses -->
+      <div class="g-row g-head">
+        <div class="g-lab">Atividade</div>
+        <div class="g-mes" style="grid-column:2/4">out 26</div>
+        <div class="g-mes" style="grid-column:4/6">nov</div>
+        <div class="g-mes" style="grid-column:6/8">dez</div>
+        <div class="g-mes" style="grid-column:8/10">jan 27</div>
+        <div class="g-mes" style="grid-column:10/12">fev</div>
+        <div class="g-mes" style="grid-column:12/14">mar</div>
+        <div class="g-mes" style="grid-column:14/16">abr</div>
+        <div class="g-mes" style="grid-column:16/18">mai</div>
+        <div class="g-mes" style="grid-column:18/20">jun</div>
+        <div class="g-mes" style="grid-column:20/22">jul</div>
+        <div class="g-mes" style="grid-column:22/24">ago</div>
+        <div class="g-mes" style="grid-column:24/26">set</div>
+      </div>
+
+      <!-- 1.1 PLANEJAMENTO -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.1</i>Planejamento do Projeto</div>
+        <div class="barra fase critica" style="grid-column:2/8"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Termo de abertura e escopo</div>
+        <div class="barra critica" style="grid-column:2/4"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">EAP, cronograma e marcos<span class="dep">depende de: termo de abertura</span></div>
+        <div class="barra critica" style="grid-column:3/6"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Riscos, KPIs e orçamento<span class="dep">depende de: EAP</span></div>
+        <div class="barra" style="grid-column:5/8"></div>
+      </div>
+
+      <!-- 1.2 CAPTAÇÃO -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.2</i>Captação e Parcerias</div>
+        <div class="barra fase critica" style="grid-column:5/11"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Pitch deck e projeções financeiras<span class="dep">depende de: orçamento</span></div>
+        <div class="barra critica" style="grid-column:5/8"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Prospecção de investidores-anjo<span class="dep">depende de: pitch deck</span></div>
+        <div class="barra critica" style="grid-column:7/11"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Fechamento e formalização do aporte</div>
+        <div class="barra critica" style="grid-column:10/12"></div>
+        <div class="marco" style="grid-column:12"><span>Aporte R$ 250 mil</span></div>
+      </div>
+
+      <!-- 1.4 HARDWARE -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.4</i>Hardware e Sensores IoT</div>
+        <div class="barra fase critica" style="grid-column:6/16"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Especificação técnica do sensor</div>
+        <div class="barra" style="grid-column:6/8"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Cotação, contrato e garantia<span class="dep">depende de: aporte</span></div>
+        <div class="barra critica" style="grid-column:12/14"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Protótipo em bancada e testes<span class="dep">depende de: fornecedores</span></div>
+        <div class="barra critica" style="grid-column:13/16"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Lote piloto de produção<span class="dep">depende de: protótipo</span></div>
+        <div class="barra critica" style="grid-column:15/18"></div>
+      </div>
+
+      <!-- 1.5 SOFTWARE -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.5</i>Software e Aplicativo</div>
+        <div class="barra fase" style="grid-column:7/18"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">UX, requisitos e protótipo de telas</div>
+        <div class="barra" style="grid-column:7/10"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Back-end, APIs e banco de dados<span class="dep">depende de: requisitos</span></div>
+        <div class="barra" style="grid-column:9/13"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Aplicativo móvel e dashboard<span class="dep">depende de: back-end</span></div>
+        <div class="barra" style="grid-column:11/15"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Autenticação e painel de controle</div>
+        <div class="barra" style="grid-column:14/18"></div>
+      </div>
+
+      <!-- 1.6 IA -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.6</i>IA, Dados e Analytics</div>
+        <div class="barra fase" style="grid-column:11/20"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Coleta e ingestão de dados<span class="dep">depende de: back-end</span></div>
+        <div class="barra" style="grid-column:11/14"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Detecção de anomalias e alertas</div>
+        <div class="barra" style="grid-column:13/17"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Previsão de consumo e de conta</div>
+        <div class="barra" style="grid-column:15/18"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Localização por assinatura de vazão</div>
+        <div class="barra" style="grid-column:16/20"></div>
+      </div>
+
+      <!-- 1.7 INTEGRAÇÃO -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.7</i>Integração IoT</div>
+        <div class="barra fase critica" style="grid-column:13/19"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Comunicação sensor ↔ aplicativo<span class="dep">depende de: protótipo, back-end</span></div>
+        <div class="barra critica" style="grid-column:13/16"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Processamento e fluxo contínuo</div>
+        <div class="barra critica" style="grid-column:15/18"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Testes de integração ponta a ponta</div>
+        <div class="barra critica" style="grid-column:17/19"></div>
+      </div>
+
+      <!-- 1.3 VALIDAÇÃO -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.3</i>Validação do MVP</div>
+        <div class="barra fase critica" style="grid-column:16/22"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Instalação piloto em condomínio<span class="dep">depende de: lote piloto, integração</span></div>
+        <div class="barra critica" style="grid-column:16/19"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Coleta de feedback e métricas de uso</div>
+        <div class="barra critica" style="grid-column:18/20"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Ajustes finos em sensor e aplicativo</div>
+        <div class="barra critica" style="grid-column:19/21"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Homologação do MVP para o mercado</div>
+        <div class="barra critica" style="grid-column:20/22"></div>
+        <div class="marco" style="grid-column:22"><span>MVP homologado</span></div>
+      </div>
+
+      <!-- 1.8 SEGURANÇA -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.8</i>Segurança e LGPD</div>
+        <div class="barra fase" style="grid-column:14/22"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Criptografia e proteção na nuvem</div>
+        <div class="barra" style="grid-column:14/17"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Adequação jurídica e termos de aceite</div>
+        <div class="barra" style="grid-column:16/19"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Confiabilidade e tempo de resposta</div>
+        <div class="barra" style="grid-column:18/21"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Plano de contingência operacional</div>
+        <div class="barra" style="grid-column:20/22"></div>
+      </div>
+
+      <!-- 1.9 MARKETING -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.9</i>Marketing e Lançamento</div>
+        <div class="barra fase critica" style="grid-column:18/26"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Divulgação em redes e WhatsApp</div>
+        <div class="barra" style="grid-column:18/22"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Networking com síndicos e administradoras</div>
+        <div class="barra" style="grid-column:19/23"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Lançamento comercial e primeiros clientes<span class="dep">depende de: MVP homologado</span></div>
+        <div class="barra critica" style="grid-column:22/24"></div>
+        <div class="marco" style="grid-column:24"><span>Lançamento</span></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Pós-venda, suporte e expansão</div>
+        <div class="barra" style="grid-column:23/26"></div>
+      </div>
+
+      <!-- 1.10 ENCERRAMENTO -->
+      <div class="g-row g-fase">
+        <div class="g-lab"><i>1.10</i>Encerramento e Entregas</div>
+        <div class="barra fase critica" style="grid-column:23/26"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Avaliação técnica, financeira e de impacto</div>
+        <div class="barra critica" style="grid-column:23/25"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Documentação de lições aprendidas</div>
+        <div class="barra" style="grid-column:24/26"></div>
+      </div>
+      <div class="g-row">
+        <div class="g-lab">Prestação de contas e encerramento</div>
+        <div class="barra critica" style="grid-column:24/26"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legenda">
+    <div><span class="sw n"></span> Atividade com folga</div>
+    <div><span class="sw c"></span> Atividade no caminho crítico</div>
+    <div><span class="sw m"></span> Marco do projeto</div>
+  </div>
+</section>
+
+<section>
+  <div class="head">
+    <h2>Caminho crítico</h2>
+    <p class="note">
+      A sequência mais longa do projeto, sem folga. Somada, ela define os doze
+      meses de duração: atrasar qualquer uma dessas atividades atrasa o
+      encerramento na mesma medida.
+    </p>
+  </div>
+  <div class="cc">
+    <span>1.1 Planejamento</span><b>→</b>
+    <span>1.2 Captação do aporte</span><b>→</b>
+    <span>1.4 Hardware e lote piloto</span><b>→</b>
+    <span>1.7 Integração IoT</span><b>→</b>
+    <span>1.3 Validação do MVP</span><b>→</b>
+    <span>1.9 Lançamento comercial</span><b>→</b>
+    <span>1.10 Encerramento</span>
+  </div>
+  <p class="note" style="margin-top:18px">
+    <strong>O gargalo é o aporte.</strong> Nada de hardware pode ser encomendado
+    antes de o dinheiro entrar, e sem sensor físico não há integração, nem
+    piloto, nem lançamento. Por isso a prospecção de investidores começa em
+    dezembro, ainda durante o planejamento — quatro meses de antecedência para
+    uma atividade que não depende de mais ninguém para começar. As frentes de
+    software, IA e LGPD correm em paralelo justamente porque não dependem do
+    aporte, e chegam prontas quando o sensor chega.
+  </p>
+</section>
+
+<section>
+  <div class="head">
+    <h2>Entregas acadêmicas — setembro de 2026</h2>
+    <p class="note">
+      Cronograma de curto prazo da disciplina, anterior ao início do projeto
+      modelado acima.
+    </p>
+  </div>
+  <table class="sprint">
+    <thead>
+      <tr><th>Data</th><th>Entrega</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="d">até 08 set</td><td>Termo de abertura, EAP, stakeholders e análise de mercado</td><td class="st ok">concluído</td></tr>
+      <tr class="entrega"><td class="d">15 set</td><td>1.6 — Diagrama de Gantt</td><td class="st">este documento</td></tr>
+      <tr class="entrega"><td class="d">17 set</td><td>1.7 — Levantamento de custos</td><td class="st">a fazer</td></tr>
+      <tr class="entrega"><td class="d">21 set</td><td>1.8 — Protótipo</td><td class="st">em construção</td></tr>
+      <tr class="entrega"><td class="d">22 set</td><td>1.9 — Apresentação final</td><td class="st">a fazer</td></tr>
+      <tr class="entrega"><td class="d">25 set</td><td>1.10 — Relatório final</td><td class="st">a fazer</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Hydro Mind — Água Alerta · Diagrama de Gantt, versão 1.0 · setembro de 2026.<br>
+  Estrutura baseada na Estrutura Analítica do Projeto elaborada pelos autores.
+  Datas de início e durações são estimativas de planejamento, sujeitas a revisão
+  após a captação do aporte.
+</footer>
+
+</div>
