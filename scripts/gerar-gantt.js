@@ -1,3 +1,5 @@
+/* Script Node (CommonJS) executado via `npm run gantt`, fora do bundle do Next. */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   WidthType, ShadingType, AlignmentType, HeadingLevel, BorderStyle,
@@ -84,7 +86,6 @@ const COL_MES = 850;
 const LARGURA = COL_ATIV + COL_MES * 12; // 14570
 const COLS = [COL_ATIV, ...Array(12).fill(COL_MES)];
 
-const semBorda = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const bordaFina = { style: BorderStyle.SINGLE, size: 2, color: LINHA };
 
 function txt(text, o = {}) {

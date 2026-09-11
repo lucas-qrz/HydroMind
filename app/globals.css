@@ -43,8 +43,12 @@
   --bom-fundo: #e6f4ef;
 }
 
-/* Painel: mesma nomenclatura, valores do mundo escuro. */
-.painel {
+/* Painel e seções escuras do site: mesma nomenclatura, valores do mundo
+   escuro. `.escuro` reaproveita a paleta do painel em trechos do site, como
+   a abertura — assim o produto que aparece na landing tem a mesma cara do
+   produto real. */
+.painel,
+.escuro {
   --fundo: #071e31;
   --superficie: #0b2438;
   --superficie-2: #102e47;
