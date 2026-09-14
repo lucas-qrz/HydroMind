@@ -161,11 +161,148 @@ body:has(.painel) {
   border-radius: 3px;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+ * Movimento da landing. Cada animação é uma classe `animar-*`, para que o
+ * bloco de movimento reduzido abaixo consiga desligar todas de uma vez.
+ */
+/*
+ * Entrada da abertura. É CSS puro de propósito: o conteúdo acima da dobra
+ * não pode depender do JavaScript para aparecer. A animação começa assim que
+ * a página pinta; se o CSS de animação falhar ou o usuário pedir movimento
+ * reduzido, o texto simplesmente aparece.
+ */
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animar-entrar {
+  animation: entrar 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes flutuar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.animar-flutuar {
+  animation: flutuar 7s ease-in-out infinite;
+}
+
+@keyframes rolar {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animar-rolar {
+  animation: rolar 38s linear infinite;
+}
+
+@keyframes surgir-notificacao {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  18%,
+  78% {
+    opacity: 1;
+    transform: none;
+  }
+  90%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.animar-notificacao {
+  animation: surgir-notificacao 4.5s ease-in-out infinite;
+}
+
+@keyframes encher {
+  0% {
+    width: 12%;
+  }
+  60%,
+  100% {
+    width: 80%;
+  }
+}
+.animar-encher {
+  animation: encher 3.6s cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
+}
+
+@keyframes piscar {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animar-piscar {
+  animation: piscar 1.8s ease-in-out infinite;
+}
+
+@keyframes quicar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+.animar-quicar {
+  animation: quicar 1.6s ease-in-out infinite;
+}
+
+@keyframes onda {
+  to {
+    stroke-dashoffset: -44;
+  }
+}
+.animar-onda {
+  animation: onda 1.6s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Loops infinitos com duração mínima piscariam, e a entrada com atraso
+     deixaria o texto invisível por um instante: melhor desligar todas. */
+  .animar-entrar,
+  .animar-flutuar,
+  .animar-rolar,
+  .animar-notificacao,
+  .animar-encher,
+  .animar-piscar,
+  .animar-quicar,
+  .animar-onda {
+    animation: none !important;
   }
 }

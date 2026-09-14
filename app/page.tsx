@@ -1,4 +1,7 @@
 import Link from "next/link";
+import CasaInterativa from "./_componentes/CasaInterativa";
+import Abas from "./_componentes/Abas";
+import { Revelar } from "./_componentes/Revelar";
 import {
   IconeAmbiente,
   IconeCasa,
@@ -9,6 +12,7 @@ import {
   IconeEscudo,
   IconeGota,
   IconeInteligencia,
+  IconePlay,
   IconePredio,
   IconeRelatorio,
   IconeSeta,
@@ -18,67 +22,56 @@ import {
 /*
  * Landing page do Água Alerta.
  *
- * Regra editorial desta página: nenhum número. Sem estatística de mercado,
- * sem dado de terceiros, sem valor estimado. O convencimento vem da clareza
- * da proposta e da demonstração do produto. Tudo o que o texto promete está
- * na descrição do produto e nos requisitos elaborados pela equipe.
+ * Regra editorial: nenhum número. Sem estatística de mercado, sem dado de
+ * terceiros, sem valor estimado. O convencimento vem do texto e da
+ * demonstração do produto — principalmente da casa 3D da abertura.
  */
 
-const PILARES = [
+const FAIXA = [
   "Monitoramento contínuo",
   "Alertas imediatos",
   "Instalação simples",
   "Baixa manutenção",
+  "Consumo por ambiente",
+  "Conta sem surpresa",
+];
+
+const ESCONDERIJOS = [
+  {
+    Icone: IconeAmbiente,
+    titulo: "Atrás da parede",
+    texto: "Um cano que cede devagar e só aparece quando a mancha surge.",
+  },
+  {
+    Icone: IconeGota,
+    titulo: "Na descarga",
+    texto: "Uma vedação gasta que deixa a água correr dia e noite, sem barulho.",
+  },
+  {
+    Icone: IconeCasa,
+    titulo: "Na caixa d'água",
+    texto: "Uma boia travada que transborda enquanto ninguém está olhando.",
+  },
 ];
 
 const PASSOS = [
   {
+    Icone: IconeCheck,
     titulo: "Instale",
-    texto:
-      "Sensores compactos conectados à rede hidráulica do imóvel. A configuração é simples e o sistema começa a monitorar no mesmo dia.",
-  },
-  {
-    titulo: "Aprenda",
-    texto:
-      "A inteligência do Água Alerta aprende o ritmo de consumo de cada ambiente: quando a água é usada, quanto e por quanto tempo.",
-  },
-  {
-    titulo: "Aja",
-    texto:
-      "Quando algo foge do normal, você recebe o alerta na hora, com o local provável e o impacto na conta. Tempo de agir antes do prejuízo.",
-  },
-];
-
-const RECURSOS = [
-  {
-    Icone: IconeGota,
-    titulo: "Detecção de vazamentos",
-    texto: "Identifica água correndo sem parar e consumo fora de hora, antes que virem prejuízo.",
-  },
-  {
-    Icone: IconeConta,
-    titulo: "Conta em tempo real",
-    texto: "Acompanhe quanto já consumiu e quanto vai pagar no fechamento do mês. Sem surpresa no boleto.",
-  },
-  {
-    Icone: IconeAmbiente,
-    titulo: "Consumo por ambiente",
-    texto: "Descubra qual cômodo, bloco ou setor gasta mais e onde vale concentrar esforço.",
-  },
-  {
-    Icone: IconeSino,
-    titulo: "Alertas no celular",
-    texto: "Notificações imediatas, onde você estiver. O imóvel avisa você, não o contrário.",
-  },
-  {
-    Icone: IconeRelatorio,
-    titulo: "Relatórios claros",
-    texto: "Histórico organizado para entender o consumo e tomar decisões com segurança.",
+    texto: "Sensores compactos na rede hidráulica, com configuração simples.",
+    fundo: "bg-agua-fundo text-agua",
   },
   {
     Icone: IconeInteligencia,
-    titulo: "Inteligência artificial",
-    texto: "Padrões anormais reconhecidos automaticamente. Você não precisa vigiar nada.",
+    titulo: "Aprenda",
+    texto: "A inteligência aprende o ritmo de consumo de cada ambiente.",
+    fundo: "bg-bom-fundo text-bom",
+  },
+  {
+    Icone: IconeSino,
+    titulo: "Aja",
+    texto: "Ao primeiro sinal fora do normal, o alerta chega no seu celular.",
+    fundo: "bg-alerta-fundo text-alerta",
   },
 ];
 
@@ -86,26 +79,22 @@ const PUBLICOS = [
   {
     Icone: IconeCasa,
     titulo: "Residências",
-    texto:
-      "Tranquilidade para a família. Saiba o que acontece com a água da sua casa, mesmo quando você não está nela.",
+    texto: "Tranquilidade para a família, mesmo quando ninguém está em casa.",
   },
   {
     Icone: IconePredio,
     titulo: "Condomínios",
-    texto:
-      "Controle por bloco, unidade e área comum. Informação clara para o síndico agir rápido e apresentar em assembleia.",
+    texto: "Controle por bloco, unidade e área comum. Informação pronta para a assembleia.",
   },
   {
     Icone: IconeEmpresa,
     titulo: "Empresas",
-    texto:
-      "Custo operacional sob controle e um compromisso visível com a sustentabilidade.",
+    texto: "Custo operacional sob controle e compromisso visível com a sustentabilidade.",
   },
   {
     Icone: IconeEscola,
     titulo: "Escolas",
-    texto:
-      "Proteção do patrimônio e um exemplo prático de uso consciente da água para os alunos.",
+    texto: "Proteção do patrimônio e uma lição prática de uso consciente da água.",
   },
 ];
 
@@ -173,308 +162,464 @@ const PERGUNTAS = [
   },
 ];
 
+const SOMBRA_SUAVE = "shadow-[0_18px_40px_-18px_rgba(6,24,43,0.35)]";
+
 export default function Site() {
   return (
     <div className="bg-fundo text-tinta flex-1">
+      <Navegacao />
+
       {/* ============ ABERTURA ============ */}
-      <div className="escuro bg-fundo text-tinta relative overflow-hidden">
+      <section className="relative overflow-hidden">
+        {/* Disco e esferas decorativas atrás da casa */}
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(60% 55% at 78% 30%, color-mix(in srgb, var(--agua) 22%, transparent), transparent 70%)",
-          }}
+          className="absolute right-[-12%] top-[6%] w-[720px] h-[720px] rounded-full bg-agua-fundo hidden lg:block"
         />
+        <Esfera className="left-[46%] top-[18%] w-6 h-6 hidden lg:block" cor="var(--agua)" atraso="0s" />
+        <Esfera className="right-[6%] top-[12%] w-10 h-10 hidden lg:block" cor="var(--bom)" atraso="-2s" />
+        <Esfera className="right-[4%] bottom-[30%] w-7 h-7 hidden lg:block" cor="#ffffff" atraso="-4s" />
+        <Esfera className="left-[47%] top-[62%] w-4 h-4 hidden lg:block" cor="var(--alerta)" atraso="-1s" />
 
-        <Navegacao />
-
-        <section className="relative mx-auto max-w-[1200px] px-6 pt-14 pb-24 lg:pt-20 lg:pb-32 grid gap-16 lg:grid-cols-[1.05fr_0.95fr] items-center">
+        <div className="relative mx-auto max-w-[1240px] px-6 pt-10 pb-16 lg:pt-16 lg:pb-24 grid gap-10 lg:grid-cols-[1fr_1.05fr] items-center">
           <div>
-            <p className="rotulo text-agua">Monitoramento inteligente de água</p>
-            <h1 className="titulo text-[clamp(2.5rem,6vw,4.3rem)] mt-5">
-              O vazamento que você não vê,{" "}
-              <span className="text-agua">a gente encontra.</span>
-            </h1>
-            <p className="text-tinta-2 text-[1.1rem] leading-relaxed mt-6 max-w-[46ch]">
-              Sensores inteligentes e um painel em tempo real que avisam na hora certa,
-              mostram para onde a água está indo e colocam o controle do consumo nas
-              suas mãos.
-            </p>
-            <div className="flex flex-wrap gap-3 mt-9">
-              <Link
-                href="/painel"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-md bg-agua text-fundo font-semibold hover:brightness-110 transition"
-              >
-                Ver demonstração <IconeSeta className="w-4 h-4" />
-              </Link>
+            <div className="animar-entrar">
+              <span className="inline-flex items-center gap-2.5 rounded-full border border-linha bg-superficie px-4 py-2 text-[0.82rem] font-medium text-tinta-2 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inset-0 rounded-full bg-agua animate-ping opacity-70" />
+                  <span className="relative h-2 w-2 rounded-full bg-agua" />
+                </span>
+                Monitoramento inteligente de água
+              </span>
+            </div>
+
+            <TituloAbertura
+              className="titulo text-[clamp(2.4rem,4.4vw,3.75rem)] mt-7"
+              partes={[
+                { texto: "O vazamento que você não vê," },
+                // Espaço não separável: o "a" nunca fica sozinho no fim da linha.
+                { texto: "a gente encontra.", destaque: true },
+              ]}
+            />
+
+            <div className="animar-entrar" style={{ animationDelay: "0.55s" }}>
+              <p className="text-tinta-2 text-[1.12rem] leading-relaxed mt-6 max-w-[44ch]">
+                Sensores inteligentes em cada ambiente e um painel em tempo real que
+                avisam na hora certa e mostram exatamente para onde a água está indo.
+              </p>
+            </div>
+
+            <div className="animar-entrar" style={{ animationDelay: "0.7s" }}>
+              <div className="flex flex-wrap gap-3 mt-9">
+                <Link
+                  href="/painel"
+                  className="inline-flex items-center gap-2 rounded-full bg-agua px-7 py-3.5 font-semibold text-white shadow-[0_12px_30px_-10px_var(--agua)] hover:-translate-y-0.5 transition"
+                >
+                  Ver demonstração <IconeSeta className="w-4 h-4" />
+                </Link>
+                <a
+                  href="#planos"
+                  className="inline-flex items-center rounded-full bg-superficie-2 px-7 py-3.5 font-semibold text-tinta hover:bg-linha transition"
+                >
+                  Conhecer os planos
+                </a>
+              </div>
+            </div>
+
+            <div className="animar-entrar" style={{ animationDelay: "0.85s" }}>
               <a
-                href="#planos"
-                className="inline-flex items-center px-6 py-3.5 rounded-md border border-linha text-tinta font-semibold hover:bg-superficie-2 transition"
+                href="#problema"
+                className="hidden lg:inline-flex items-center gap-3 mt-16 text-[0.85rem] text-tinta-3 hover:text-tinta-2 transition"
               >
-                Conhecer os planos
+                <span className="grid place-items-center w-8 h-8 rounded-full bg-superficie-2">
+                  <IconeSeta className="w-3.5 h-3.5 rotate-90 animar-quicar" />
+                </span>
+                Role para conhecer
               </a>
             </div>
           </div>
 
-          <IlustracaoProduto />
-        </section>
+          <div className="animar-entrar" style={{ animationDelay: "0.3s" }}>
+            <CasaInterativa />
+          </div>
+        </div>
+      </section>
 
-        {/* Pilares */}
-        <div className="relative border-t border-linha-suave">
-          <ul className="mx-auto max-w-[1200px] px-6 py-6 grid grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-6">
-            {PILARES.map((p) => (
-              <li key={p} className="flex items-center gap-2.5 text-[0.92rem] text-tinta-2">
-                <IconeCheck className="w-4 h-4 text-agua shrink-0" />
-                {p}
-              </li>
-            ))}
-          </ul>
+      {/* ============ FAIXA EM MOVIMENTO ============ */}
+      <div className="escuro bg-fundo text-tinta overflow-hidden border-y border-linha" aria-label="Pilares do Água Alerta">
+        <div className="flex w-max animar-rolar">
+          {[...FAIXA, ...FAIXA].map((item, i) => (
+            <span
+              key={i}
+              aria-hidden={i >= FAIXA.length}
+              className="flex items-center gap-6 px-6 py-5 text-[1.05rem] font-semibold whitespace-nowrap"
+              style={{ fontStretch: "110%" }}
+            >
+              {item}
+              <IconeGota className="w-4 h-4 text-agua" />
+            </span>
+          ))}
         </div>
       </div>
 
       {/* ============ PROBLEMA ============ */}
-      <section className="mx-auto max-w-[1200px] px-6 py-24 grid gap-12 lg:grid-cols-2 items-start">
-        <div>
+      <section id="problema" className="mx-auto max-w-[1240px] px-6 py-28 scroll-mt-20">
+        <Revelar className="text-center">
           <p className="rotulo text-agua">O problema</p>
-          <h2 className="titulo-md text-[clamp(1.8rem,3.6vw,2.7rem)] mt-4">
-            Vazamento silencioso não avisa. Ele aparece na conta.
+          <h2 className="titulo text-[clamp(2rem,4.6vw,3.6rem)] mt-5 max-w-[18ch] mx-auto">
+            Vazamento silencioso não avisa.{" "}
+            <span className="text-tinta-3">Ele aparece na conta.</span>
           </h2>
+        </Revelar>
+
+        <div className="grid gap-6 md:grid-cols-3 mt-16">
+          {ESCONDERIJOS.map(({ Icone, titulo, texto }, i) => (
+            <Revelar key={titulo} atraso={i * 0.1}>
+              <div className="h-full rounded-3xl border border-linha bg-superficie p-8 hover:-translate-y-1 hover:shadow-lg transition duration-300">
+                <span className="grid place-items-center w-12 h-12 rounded-2xl bg-superficie-2 text-tinta">
+                  <Icone className="w-6 h-6" />
+                </span>
+                <h3 className="font-bold text-[1.15rem] mt-6">{titulo}</h3>
+                <p className="text-tinta-2 leading-relaxed mt-2">{texto}</p>
+              </div>
+            </Revelar>
+          ))}
         </div>
-        <div className="flex flex-col gap-5 text-tinta-2 text-[1.05rem] leading-relaxed">
-          <p>
-            Uma válvula que não veda. Um cano que cede atrás da parede. Uma caixa
-            d&apos;água que transborda devagar. Nada disso faz barulho — e tudo isso
-            custa caro.
+
+        <Revelar className="text-center mt-14">
+          <p className="text-[1.15rem] font-semibold">
+            O Água Alerta muda essa ordem. <span className="text-agua">Você fica sabendo primeiro.</span>
           </p>
-          <p>
-            Quando o problema finalmente aparece, ele já virou prejuízo: na conta, na
-            estrutura do imóvel e no tempo perdido procurando a origem.
-          </p>
-          <p className="text-tinta font-semibold">
-            O Água Alerta muda essa ordem. Você fica sabendo primeiro.
-          </p>
+        </Revelar>
+      </section>
+
+      {/* ============ RECURSOS ============ */}
+      <section id="recursos" className="border-t border-linha scroll-mt-20">
+        <div className="mx-auto max-w-[1240px] px-6 py-28">
+          <Revelar>
+            <Cabecalho
+              rotulo="Recursos"
+              titulo="Tudo o que você precisa para cuidar da água"
+              texto="Sensores, aplicativo e inteligência trabalhando juntos, sem você precisar vigiar nada."
+            />
+          </Revelar>
+
+          <div className="grid gap-6 md:grid-cols-3 mt-14">
+            <Revelar>
+              <CartaoRecurso
+                fundo="bg-agua-fundo"
+                titulo="Alertas no celular"
+                texto="O imóvel avisa você na hora, onde você estiver."
+              >
+                <div className={`animar-notificacao flex items-center gap-3 rounded-full bg-superficie pl-2 pr-5 py-2 ${SOMBRA_SUAVE}`}>
+                  <span className="grid place-items-center w-9 h-9 rounded-full bg-critico-fundo text-critico">
+                    <IconeSino className="w-4 h-4" />
+                  </span>
+                  <span className="text-[0.88rem] font-semibold">Possível vazamento</span>
+                </div>
+              </CartaoRecurso>
+            </Revelar>
+            <Revelar atraso={0.1}>
+              <CartaoRecurso
+                fundo="bg-bom-fundo"
+                titulo="Conta sem surpresa"
+                texto="Acompanhe o consumo e saiba como o mês vai fechar."
+              >
+                <div className={`w-[220px] rounded-full bg-superficie px-5 py-4 ${SOMBRA_SUAVE}`}>
+                  <div className="h-2.5 rounded-full bg-superficie-2 overflow-hidden">
+                    <div className="h-full rounded-full bg-bom animar-encher" />
+                  </div>
+                </div>
+              </CartaoRecurso>
+            </Revelar>
+            <Revelar atraso={0.2}>
+              <CartaoRecurso
+                fundo="bg-alerta-fundo"
+                titulo="Consumo por ambiente"
+                texto="Descubra qual cômodo, bloco ou setor gasta mais."
+              >
+                <div className={`flex items-center gap-2 rounded-full bg-superficie p-2 ${SOMBRA_SUAVE}`}>
+                  {["Cozinha", "Banho", "Jardim"].map((a, i) => (
+                    <span
+                      key={a}
+                      className={`rounded-full px-3 py-1.5 text-[0.8rem] font-semibold ${
+                        i === 1 ? "bg-alerta text-white animar-piscar" : "text-tinta-2"
+                      }`}
+                    >
+                      {a}
+                    </span>
+                  ))}
+                </div>
+              </CartaoRecurso>
+            </Revelar>
+          </div>
+
+          <div className="grid gap-10 sm:grid-cols-3 mt-16 pt-12 border-t border-linha">
+            {[
+              { Icone: IconeRelatorio, titulo: "Relatórios claros", texto: "Histórico organizado para decidir com segurança." },
+              { Icone: IconeInteligencia, titulo: "Inteligência artificial", texto: "Padrões anormais reconhecidos automaticamente." },
+              { Icone: IconeConta, titulo: "Instalação simples", texto: "Sensores compactos e de baixa manutenção." },
+            ].map(({ Icone, titulo, texto }, i) => (
+              <Revelar key={titulo} atraso={i * 0.08}>
+                <div className="flex gap-4">
+                  <span className="grid place-items-center w-11 h-11 shrink-0 rounded-xl bg-agua-fundo text-agua">
+                    <Icone className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-bold">{titulo}</h3>
+                    <p className="text-tinta-2 text-[0.95rem] mt-1">{texto}</p>
+                  </div>
+                </div>
+              </Revelar>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ ABAS ============ */}
+      <section className="bg-superficie-2 border-y border-linha">
+        <div className="mx-auto max-w-[1240px] px-6 py-28">
+          <Revelar className="text-center">
+            <p className="rotulo text-agua">Na prática</p>
+            <h2 className="titulo-md text-[clamp(1.9rem,3.8vw,2.9rem)] mt-4">
+              Detectar, localizar, economizar.
+            </h2>
+          </Revelar>
+          <Revelar atraso={0.1} className="mt-12">
+            <Abas />
+          </Revelar>
         </div>
       </section>
 
       {/* ============ COMO FUNCIONA ============ */}
-      <section id="como-funciona" className="border-t border-linha bg-superficie-2 scroll-mt-4">
-        <div className="mx-auto max-w-[1200px] px-6 py-24">
-          <Cabecalho
-            rotulo="Como funciona"
-            titulo="Três passos entre o problema e a solução"
-          />
-          <ol className="grid gap-10 md:grid-cols-3 mt-14">
-            {PASSOS.map((passo, i) => (
-              <li key={passo.titulo} className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                  <span className="num w-10 h-10 rounded-full bg-agua text-white grid place-items-center font-semibold">
-                    {i + 1}
-                  </span>
-                  <span className="h-px flex-1 bg-linha" aria-hidden />
-                </div>
-                <h3 className="titulo-md text-[1.35rem]">{passo.titulo}</h3>
-                <p className="text-tinta-2 leading-relaxed">{passo.texto}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      <section id="como-funciona" className="mx-auto max-w-[1240px] px-6 py-28 scroll-mt-20">
+        <Revelar className="text-center">
+          <h2 className="titulo-md text-[clamp(1.9rem,3.8vw,2.9rem)]">Descubra como funciona</h2>
+        </Revelar>
 
-      {/* ============ RECURSOS ============ */}
-      <section id="recursos" className="mx-auto max-w-[1200px] px-6 py-24 scroll-mt-4">
-        <Cabecalho
-          rotulo="Recursos"
-          titulo="Tudo o que você precisa para cuidar da água"
-          texto="Uma solução completa: sensores, aplicativo e inteligência trabalhando juntos."
-        />
-        <div className="grid gap-px bg-linha border border-linha rounded-xl overflow-hidden mt-14 sm:grid-cols-2 lg:grid-cols-3">
-          {RECURSOS.map(({ Icone, titulo, texto }) => (
-            <div key={titulo} className="bg-superficie p-8 flex flex-col gap-3">
-              <span className="w-11 h-11 rounded-lg bg-agua-fundo text-agua grid place-items-center">
-                <Icone className="w-5 h-5" />
-              </span>
-              <h3 className="font-bold text-[1.05rem] mt-2">{titulo}</h3>
-              <p className="text-tinta-2 text-[0.95rem] leading-relaxed">{texto}</p>
+        <Revelar atraso={0.1} className="mt-12">
+          <div className="grid lg:grid-cols-2 rounded-[2rem] border border-linha bg-superficie overflow-hidden">
+            <div className="p-10 sm:p-14 flex flex-col justify-between gap-12 bg-superficie-2">
+              <div>
+                <h3 className="titulo text-[clamp(2rem,4vw,3rem)]">
+                  Instale.
+                  <br />
+                  Aprenda.
+                  <br />
+                  <span className="text-agua">Aja.</span>
+                </h3>
+                <p className="text-tinta-2 text-[1.05rem] leading-relaxed mt-6 max-w-[38ch]">
+                  Do primeiro sensor ao primeiro alerta, sem obra de cabeça quebrada e sem
+                  precisar entender de hidráulica.
+                </p>
+              </div>
+              <Link href="/painel" className="group inline-flex items-center gap-4 w-fit">
+                <span className="grid place-items-center w-14 h-14 rounded-full bg-agua text-white shadow-[0_12px_30px_-10px_var(--agua)] group-hover:scale-105 transition">
+                  <IconePlay className="w-5 h-5 ml-0.5" />
+                </span>
+                <span className="font-semibold">Ver o painel funcionando</span>
+              </Link>
             </div>
-          ))}
-        </div>
+
+            <ol className="p-6 sm:p-10 flex flex-col">
+              {PASSOS.map(({ Icone, titulo, texto, fundo }, i) => (
+                <li
+                  key={titulo}
+                  className={`flex items-center justify-between gap-6 py-7 ${
+                    i < PASSOS.length - 1 ? "border-b border-linha" : ""
+                  }`}
+                >
+                  <div>
+                    <span className="rotulo text-tinta-3">Passo {i + 1}</span>
+                    <h4 className="font-bold text-[1.2rem] mt-1.5">{titulo}</h4>
+                    <p className="text-tinta-2 mt-1 max-w-[34ch]">{texto}</p>
+                  </div>
+                  <span className={`grid place-items-center w-14 h-14 shrink-0 rounded-2xl ${fundo}`}>
+                    <Icone className="w-6 h-6" />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Revelar>
       </section>
 
       {/* ============ PARA QUEM ============ */}
-      <section id="para-quem" className="border-t border-linha scroll-mt-4">
-        <div className="mx-auto max-w-[1200px] px-6 py-24">
-          <Cabecalho
-            rotulo="Para quem"
-            titulo="Feito para cada tipo de imóvel"
-          />
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 mt-14">
-            {PUBLICOS.map(({ Icone, titulo, texto }) => (
-              <div key={titulo} className="flex flex-col gap-3 border-t-2 border-agua pt-6">
-                <Icone className="w-7 h-7 text-agua" />
-                <h3 className="titulo-md text-[1.25rem] mt-1">{titulo}</h3>
-                <p className="text-tinta-2 text-[0.95rem] leading-relaxed">{texto}</p>
-              </div>
+      <section id="para-quem" className="border-t border-linha scroll-mt-20">
+        <div className="mx-auto max-w-[1240px] px-6 py-28">
+          <Revelar>
+            <Cabecalho rotulo="Para quem" titulo="Feito para cada tipo de imóvel" />
+          </Revelar>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-14">
+            {PUBLICOS.map(({ Icone, titulo, texto }, i) => (
+              <Revelar key={titulo} atraso={i * 0.08}>
+                <div className="group h-full rounded-3xl border border-linha bg-superficie p-7 hover:border-agua hover:-translate-y-1 hover:shadow-lg transition duration-300">
+                  <span className="grid place-items-center w-12 h-12 rounded-2xl bg-agua-fundo text-agua group-hover:bg-agua group-hover:text-white transition">
+                    <Icone className="w-6 h-6" />
+                  </span>
+                  <h3 className="titulo-md text-[1.3rem] mt-6">{titulo}</h3>
+                  <p className="text-tinta-2 text-[0.95rem] leading-relaxed mt-2">{texto}</p>
+                </div>
+              </Revelar>
             ))}
           </div>
         </div>
       </section>
 
       {/* ============ EM AÇÃO ============ */}
-      <section className="escuro bg-fundo text-tinta">
-        <div className="mx-auto max-w-[1200px] px-6 py-24 grid gap-14 lg:grid-cols-2 items-center">
-          <div>
+      <section className="escuro bg-fundo text-tinta relative overflow-hidden">
+        <Esfera className="left-[4%] top-[14%] w-8 h-8" cor="var(--agua)" atraso="-3s" />
+        <Esfera className="right-[46%] bottom-[10%] w-5 h-5" cor="var(--bom)" atraso="-1s" />
+        <div className="relative mx-auto max-w-[1240px] px-6 py-28 grid gap-14 lg:grid-cols-2 items-center">
+          <Revelar>
             <p className="rotulo text-agua">O produto em ação</p>
-            <h2 className="titulo-md text-[clamp(1.8rem,3.6vw,2.7rem)] mt-4">
+            <h2 className="titulo-md text-[clamp(1.9rem,3.8vw,2.9rem)] mt-4">
               Tudo o que importa, em uma tela.
             </h2>
-            <p className="text-tinta-2 text-[1.05rem] leading-relaxed mt-5 max-w-[48ch]">
-              O painel do Água Alerta transforma o consumo em informação que qualquer
-              pessoa entende. Sem planilha, sem conta de cabeça, sem adivinhação.
+            <p className="text-tinta-2 text-[1.05rem] leading-relaxed mt-5 max-w-[46ch]">
+              O painel transforma o consumo em informação que qualquer pessoa entende. Sem
+              planilha, sem conta de cabeça, sem adivinhação.
             </p>
-            <ul className="flex flex-col gap-3 mt-7">
-              {[
-                "O que está acontecendo agora, em cada ambiente",
-                "Quanto a conta do mês deve fechar",
-                "Onde está o consumo fora do normal",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3 text-tinta-2">
-                  <IconeCheck className="w-5 h-5 text-agua shrink-0 mt-0.5" />
-                  {t}
-                </li>
-              ))}
-            </ul>
             <Link
               href="/painel"
-              className="inline-flex items-center gap-2 mt-9 px-6 py-3.5 rounded-md bg-agua text-fundo font-semibold hover:brightness-110 transition"
+              className="inline-flex items-center gap-2 mt-9 rounded-full bg-agua px-7 py-3.5 font-semibold text-fundo hover:-translate-y-0.5 transition"
             >
               Explorar o painel <IconeSeta className="w-4 h-4" />
             </Link>
-          </div>
-
+          </Revelar>
           <FeedAlertas />
         </div>
       </section>
 
       {/* ============ SEGURANÇA ============ */}
       <section className="border-b border-linha">
-        <div className="mx-auto max-w-[1200px] px-6 py-12 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <span className="w-12 h-12 rounded-lg bg-agua-fundo text-agua grid place-items-center shrink-0">
+        <Revelar className="mx-auto max-w-[1240px] px-6 py-12 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <span className="grid place-items-center w-12 h-12 shrink-0 rounded-2xl bg-agua-fundo text-agua">
             <IconeEscudo className="w-6 h-6" />
           </span>
           <div>
             <h3 className="font-bold text-[1.05rem]">Seus dados protegidos</h3>
             <p className="text-tinta-2 text-[0.95rem] mt-1">
-              Informações criptografadas e tratadas de acordo com a LGPD. O consumo do seu
-              imóvel é só seu.
+              Informações criptografadas e tratadas de acordo com a LGPD. O consumo do seu imóvel
+              é só seu.
             </p>
           </div>
-        </div>
+        </Revelar>
       </section>
 
       {/* ============ PLANOS ============ */}
-      <section id="planos" className="mx-auto max-w-[1200px] px-6 py-24 scroll-mt-4">
-        <Cabecalho
-          rotulo="Planos"
-          titulo="Uma solução sob medida para o seu imóvel"
-          texto="Sensores e assinatura de monitoramento, em uma proposta montada para a sua realidade."
-        />
+      <section id="planos" className="mx-auto max-w-[1240px] px-6 py-28 scroll-mt-20">
+        <Revelar>
+          <Cabecalho
+            rotulo="Planos"
+            titulo="Uma solução sob medida para o seu imóvel"
+            texto="Sensores e assinatura de monitoramento, em uma proposta montada para a sua realidade."
+          />
+        </Revelar>
         <div className="grid gap-6 lg:grid-cols-3 mt-14 items-stretch">
-          {PLANOS.map((plano) => (
-            <div
-              key={plano.nome}
-              className={`relative rounded-xl p-8 flex flex-col ${
-                plano.destaque
-                  ? "escuro bg-fundo text-tinta shadow-xl"
-                  : "bg-superficie border border-linha"
-              }`}
-            >
-              {plano.destaque && (
-                <span className="rotulo absolute -top-3 left-8 bg-agua text-fundo px-3 py-1 rounded-full">
-                  Mais procurado
-                </span>
-              )}
-              <h3 className="titulo-md text-[1.5rem]">{plano.nome}</h3>
-              <p className="text-tinta-2 text-[0.92rem] mt-1">{plano.para}</p>
-              <ul className="flex flex-col gap-3 mt-7 mb-9">
-                {plano.itens.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-[0.95rem]">
-                    <IconeCheck className="w-5 h-5 text-agua shrink-0 mt-0.5" />
-                    <span className="text-tinta-2">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="#contato"
-                className={`mt-auto text-center px-5 py-3 rounded-md font-semibold transition ${
+          {PLANOS.map((plano, i) => (
+            <Revelar key={plano.nome} atraso={i * 0.1}>
+              <div
+                className={`relative h-full rounded-3xl p-8 flex flex-col transition duration-300 hover:-translate-y-1 ${
                   plano.destaque
-                    ? "bg-agua text-fundo hover:brightness-110"
-                    : "border border-agua text-agua hover:bg-agua-fundo"
+                    ? "escuro bg-fundo text-tinta shadow-2xl"
+                    : "bg-superficie border border-linha hover:shadow-lg"
                 }`}
               >
-                Solicitar proposta
-              </a>
-            </div>
+                {plano.destaque && (
+                  <span className="rotulo absolute -top-3 left-8 rounded-full bg-agua text-fundo px-3 py-1">
+                    Mais procurado
+                  </span>
+                )}
+                <h3 className="titulo-md text-[1.55rem]">{plano.nome}</h3>
+                <p className="text-tinta-2 text-[0.92rem] mt-1">{plano.para}</p>
+                <ul className="flex flex-col gap-3 mt-7 mb-9">
+                  {plano.itens.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-[0.95rem]">
+                      <IconeCheck className="w-5 h-5 text-agua shrink-0 mt-0.5" />
+                      <span className="text-tinta-2">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="#contato"
+                  className={`mt-auto text-center rounded-full px-5 py-3.5 font-semibold transition ${
+                    plano.destaque
+                      ? "bg-agua text-fundo hover:brightness-110"
+                      : "bg-superficie-2 text-tinta hover:bg-agua hover:text-white"
+                  }`}
+                >
+                  Solicitar proposta
+                </a>
+              </div>
+            </Revelar>
           ))}
         </div>
       </section>
 
       {/* ============ PERGUNTAS ============ */}
-      <section id="perguntas" className="border-t border-linha bg-superficie-2 scroll-mt-4">
-        <div className="mx-auto max-w-[860px] px-6 py-24">
-          <Cabecalho rotulo="Perguntas frequentes" titulo="Ficou alguma dúvida?" />
-          <div className="mt-12 border-t border-linha">
-            {PERGUNTAS.map(({ p, r }) => (
-              <details key={p} className="group border-b border-linha">
-                <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none font-semibold text-[1.02rem]">
-                  {p}
-                  <span
-                    aria-hidden
-                    className="text-agua text-xl leading-none transition-transform group-open:rotate-45"
-                  >
-                    +
-                  </span>
-                </summary>
-                <p className="pb-6 text-tinta-2 leading-relaxed max-w-[68ch]">{r}</p>
-              </details>
+      <section id="perguntas" className="border-t border-linha bg-superficie-2 scroll-mt-20">
+        <div className="mx-auto max-w-[860px] px-6 py-28">
+          <Revelar className="text-center">
+            <p className="rotulo text-agua">Perguntas frequentes</p>
+            <h2 className="titulo-md text-[clamp(1.9rem,3.8vw,2.9rem)] mt-4">Ficou alguma dúvida?</h2>
+          </Revelar>
+          <div className="mt-12 flex flex-col gap-3">
+            {PERGUNTAS.map(({ p, r }, i) => (
+              <Revelar key={p} atraso={i * 0.05} y={16}>
+                <details className="group rounded-2xl border border-linha bg-superficie px-6 open:shadow-md transition">
+                  <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none font-semibold text-[1.02rem]">
+                    {p}
+                    <span
+                      aria-hidden
+                      className="grid place-items-center w-8 h-8 shrink-0 rounded-full bg-agua-fundo text-agua text-lg leading-none transition-transform group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="pb-6 text-tinta-2 leading-relaxed max-w-[68ch]">{r}</p>
+                </details>
+              </Revelar>
             ))}
           </div>
         </div>
       </section>
 
       {/* ============ CHAMADA FINAL ============ */}
-      <section id="contato" className="escuro bg-fundo text-tinta relative overflow-hidden scroll-mt-4">
+      <section id="contato" className="escuro bg-fundo text-tinta relative overflow-hidden scroll-mt-20">
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(50% 80% at 50% 100%, color-mix(in srgb, var(--agua) 20%, transparent), transparent 70%)",
+              "radial-gradient(50% 80% at 50% 100%, color-mix(in srgb, var(--agua) 22%, transparent), transparent 70%)",
           }}
         />
-        <div className="relative mx-auto max-w-[1200px] px-6 py-28 text-center">
-          <h2 className="titulo text-[clamp(2rem,5vw,3.4rem)] max-w-[20ch] mx-auto">
+        <Esfera className="left-[12%] top-[22%] w-9 h-9" cor="var(--agua)" atraso="-2s" />
+        <Esfera className="right-[14%] top-[30%] w-6 h-6" cor="var(--bom)" atraso="-5s" />
+        <Esfera className="right-[26%] bottom-[34%] w-4 h-4" cor="var(--alerta)" atraso="-3s" />
+
+        <Revelar className="relative mx-auto max-w-[1240px] px-6 py-32 text-center">
+          <h2 className="titulo text-[clamp(2.2rem,5.4vw,4rem)] max-w-[18ch] mx-auto">
             Pare de pagar pela água que você não usa.
           </h2>
-          <p className="text-tinta-2 text-[1.1rem] mt-6">
+          <p className="text-tinta-2 text-[1.15rem] mt-6">
             Água inteligente. Menos desperdício. Mais economia.
           </p>
-          <div className="flex flex-wrap justify-center gap-3 mt-10">
-            <Link
-              href="/painel"
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-md bg-agua text-fundo font-semibold hover:brightness-110 transition"
-            >
-              Ver demonstração <IconeSeta className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
+          <Link
+            href="/painel"
+            className="inline-flex items-center gap-2 mt-10 rounded-full bg-agua px-8 py-4 font-semibold text-fundo shadow-[0_12px_40px_-10px_var(--agua)] hover:-translate-y-0.5 transition"
+          >
+            Ver demonstração <IconeSeta className="w-4 h-4" />
+          </Link>
+        </Revelar>
 
         <footer className="relative border-t border-linha-suave">
-          <div className="mx-auto max-w-[1200px] px-6 py-10 flex flex-col md:flex-row gap-6 md:items-center justify-between">
+          <div className="mx-auto max-w-[1240px] px-6 py-10 flex flex-col md:flex-row gap-6 md:items-center justify-between">
             <Marca />
             <nav className="flex flex-wrap gap-x-7 gap-y-2 text-[0.9rem] text-tinta-2">
-              <a href="#como-funciona" className="hover:text-tinta">Como funciona</a>
               <a href="#recursos" className="hover:text-tinta">Recursos</a>
+              <a href="#como-funciona" className="hover:text-tinta">Como funciona</a>
               <a href="#planos" className="hover:text-tinta">Planos</a>
               <a href="#perguntas" className="hover:text-tinta">Dúvidas</a>
             </nav>
@@ -488,6 +633,39 @@ export default function Site() {
 
 /* ================================================================== */
 
+/*
+ * Título da abertura: entra palavra por palavra, só com CSS. Fica no servidor
+ * (sem JavaScript) porque é o elemento mais importante da página — ele
+ * precisa estar no HTML visível desde o primeiro carregamento.
+ */
+function TituloAbertura({
+  partes,
+  className,
+}: {
+  partes: { texto: string; destaque?: boolean }[];
+  className?: string;
+}) {
+  let indice = 0;
+  return (
+    <h1 className={className}>
+      {partes.map((parte, p) => (
+        <span key={p} className={parte.destaque ? "text-agua" : undefined}>
+          {parte.texto.split(" ").map((palavra, w) => {
+            const atraso = 0.08 + indice++ * 0.06;
+            return (
+              <span key={w}>
+                <span className="inline-block animar-entrar" style={{ animationDelay: `${atraso}s` }}>
+                  {palavra}
+                </span>{" "}
+              </span>
+            );
+          })}
+        </span>
+      ))}
+    </h1>
+  );
+}
+
 function Marca() {
   return (
     <div className="flex items-center gap-2.5">
@@ -500,10 +678,7 @@ function Marca() {
           background: "linear-gradient(150deg, var(--agua), color-mix(in srgb, var(--agua) 60%, black))",
         }}
       />
-      <span
-        className="font-extrabold text-[1rem] tracking-wide whitespace-nowrap"
-        style={{ fontStretch: "118%" }}
-      >
+      <span className="font-extrabold text-[1rem] tracking-wide whitespace-nowrap" style={{ fontStretch: "118%" }}>
         HYDRO MIND
       </span>
     </div>
@@ -512,19 +687,18 @@ function Marca() {
 
 function Navegacao() {
   return (
-    <header className="relative">
-      <div className="mx-auto max-w-[1200px] px-6 py-5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 border-b border-linha/70 bg-fundo/80 backdrop-blur-md">
+      <div className="mx-auto max-w-[1240px] px-6 py-4 flex items-center justify-between gap-4">
         <Marca />
         <nav className="hidden md:flex gap-8 text-[0.92rem] text-tinta-2">
-          <a href="#como-funciona" className="hover:text-tinta transition">Como funciona</a>
           <a href="#recursos" className="hover:text-tinta transition">Recursos</a>
+          <a href="#como-funciona" className="hover:text-tinta transition">Como funciona</a>
           <a href="#para-quem" className="hover:text-tinta transition">Para quem</a>
           <a href="#planos" className="hover:text-tinta transition">Planos</a>
         </nav>
-        {/* No celular o texto encurta para não quebrar em duas linhas. */}
         <Link
           href="/painel"
-          className="px-4 py-2.5 rounded-md bg-agua text-fundo text-[0.9rem] font-semibold whitespace-nowrap hover:brightness-110 transition"
+          className="rounded-full bg-tinta px-5 py-2.5 text-[0.9rem] font-semibold text-fundo whitespace-nowrap hover:bg-agua transition"
         >
           <span className="sm:hidden">Demonstração</span>
           <span className="hidden sm:inline">Ver demonstração</span>
@@ -538,97 +712,48 @@ function Cabecalho({ rotulo, titulo, texto }: { rotulo: string; titulo: string; 
   return (
     <div className="max-w-[640px]">
       <p className="rotulo text-agua">{rotulo}</p>
-      <h2 className="titulo-md text-[clamp(1.8rem,3.6vw,2.7rem)] mt-4">{titulo}</h2>
+      <h2 className="titulo-md text-[clamp(1.9rem,3.8vw,2.9rem)] mt-4">{titulo}</h2>
       {texto && <p className="text-tinta-2 text-[1.05rem] leading-relaxed mt-4">{texto}</p>}
     </div>
   );
 }
 
-/*
- * Ilustração do produto na abertura: o painel de uma casa com um ambiente em
- * alerta e a notificação que chegaria ao celular. É uma representação da
- * interface, não um dado — por isso não traz números.
- */
-function IlustracaoProduto() {
-  const ambientes = [
-    { nome: "Cozinha", estado: "Normal", alerta: false },
-    { nome: "Banheiro social", estado: "Atenção", alerta: true },
-    { nome: "Área de serviço", estado: "Normal", alerta: false },
-    { nome: "Jardim", estado: "Normal", alerta: false },
-  ];
-
+/** Esfera decorativa com brilho de volume, flutuando devagar. */
+function Esfera({ className, cor, atraso }: { className: string; cor: string; atraso: string }) {
   return (
-    <div className="relative lg:pl-6 sm:pb-16">
-      <div className="rounded-xl border border-linha bg-superficie shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-linha-suave">
-          <div>
-            <div className="font-semibold text-[0.95rem]">Minha casa</div>
-            <div className="text-tinta-3 text-[0.8rem]">Monitoramento por ambiente</div>
-          </div>
-          <span className="rotulo text-bom flex items-center gap-2">
-            <span className="relative flex w-2 h-2">
-              <span className="absolute inset-0 rounded-full bg-bom animate-ping opacity-60" />
-              <span className="relative w-2 h-2 rounded-full bg-bom" />
-            </span>
-            ao vivo
-          </span>
-        </div>
+    <span
+      aria-hidden
+      className={`absolute rounded-full animar-flutuar pointer-events-none ${className}`}
+      style={{
+        background: `radial-gradient(circle at 32% 28%, #ffffff 0%, ${cor} 42%, color-mix(in srgb, ${cor} 70%, black) 100%)`,
+        boxShadow: `0 14px 30px -10px color-mix(in srgb, ${cor} 60%, transparent)`,
+        animationDelay: atraso,
+      }}
+    />
+  );
+}
 
-        <div className="px-5 pt-5">
-          <div className="rotulo text-tinta-3">Vazão nas últimas 24 horas</div>
-          <svg viewBox="0 0 320 90" className="w-full h-auto mt-3" aria-hidden="true">
-            <rect x="32" y="4" width="40" height="78" fill="var(--critico)" opacity="0.12" />
-            <path
-              d="M0 78 L32 72 L72 72 L96 70 L108 30 L122 64 L150 58 L170 40 L186 66 L214 60 L232 18 L248 56 L276 50 L296 36 L320 70 L320 82 L0 82 Z"
-              fill="var(--agua)"
-              opacity="0.18"
-            />
-            <path
-              d="M0 78 L32 72 L72 72 L96 70 L108 30 L122 64 L150 58 L170 40 L186 66 L214 60 L232 18 L248 56 L276 50 L296 36 L320 70"
-              fill="none"
-              stroke="var(--agua)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            <line x1="0" y1="72" x2="320" y2="72" stroke="var(--critico)" strokeWidth="1.3" strokeDasharray="4 4" />
-          </svg>
-        </div>
-
-        <ul className="px-5 pb-5 pt-3 flex flex-col">
-          {ambientes.map((a) => (
-            <li
-              key={a.nome}
-              className="flex items-center justify-between py-2.5 border-t border-linha-suave text-[0.9rem]"
-            >
-              <span className={a.alerta ? "text-tinta font-semibold" : "text-tinta-2"}>{a.nome}</span>
-              <span
-                className={`rotulo px-2.5 py-1 rounded-full ${
-                  a.alerta ? "bg-critico-fundo text-critico" : "bg-bom-fundo text-bom"
-                }`}
-              >
-                {a.estado}
-              </span>
-            </li>
-          ))}
-        </ul>
+/** Cartão pastel com uma pequena interface animada no centro. */
+function CartaoRecurso({
+  fundo,
+  titulo,
+  texto,
+  children,
+}: {
+  fundo: string;
+  titulo: string;
+  texto: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="group">
+      <div
+        className={`${fundo} rounded-3xl h-[230px] grid place-items-center overflow-hidden group-hover:-translate-y-1 transition duration-300`}
+      >
+        {children}
       </div>
-
-      {/* Notificação. No celular fica abaixo do cartão; a partir de `sm` fica
-          pendurada no canto inferior esquerdo, sobrepondo só o respiro interno
-          do cartão — nunca a lista de ambientes. */}
-      <div className="mt-4 sm:mt-0 sm:absolute sm:bottom-0 sm:-left-4 lg:-left-8 w-full sm:w-[300px] rounded-lg border border-critico bg-superficie-2 p-4 shadow-2xl">
-        <div className="flex gap-3">
-          <span className="w-9 h-9 rounded-full bg-critico-fundo text-critico grid place-items-center shrink-0">
-            <IconeSino className="w-4.5 h-4.5" />
-          </span>
-          <div>
-            <div className="font-semibold text-[0.9rem]">Possível vazamento</div>
-            <p className="text-tinta-2 text-[0.8rem] leading-snug mt-0.5">
-              Banheiro social: água correndo sem parar desde a madrugada.
-            </p>
-          </div>
-        </div>
-      </div>
+      <h3 className="font-bold text-[1.15rem] mt-5">{titulo}</h3>
+      <p className="text-tinta-2 mt-1">{texto}</p>
     </div>
   );
 }
@@ -638,7 +763,7 @@ function FeedAlertas() {
   const eventos = [
     {
       tipo: "critico",
-      titulo: "Possível vazamento no banheiro social",
+      titulo: "Possível vazamento no banheiro",
       texto: "Fluxo contínuo identificado durante a madrugada.",
       quando: "agora",
     },
@@ -651,7 +776,7 @@ function FeedAlertas() {
     {
       tipo: "info",
       titulo: "Previsão da conta atualizada",
-      texto: "Veja quanto o mês deve fechar com o consumo atual.",
+      texto: "Veja como o mês deve fechar com o consumo atual.",
       quando: "hoje",
     },
     {
@@ -662,29 +787,23 @@ function FeedAlertas() {
     },
   ] as const;
 
-  const cor = {
-    critico: "bg-critico",
-    alerta: "bg-alerta",
-    info: "bg-agua",
-    bom: "bg-bom",
-  };
+  const cor = { critico: "bg-critico", alerta: "bg-alerta", info: "bg-agua", bom: "bg-bom" };
 
   return (
-    <div className="rounded-xl border border-linha bg-superficie p-3 shadow-2xl">
+    <div className="rounded-3xl border border-linha bg-superficie p-3 shadow-2xl">
       {eventos.map((e, i) => (
-        <div
-          key={e.titulo}
-          className={`flex gap-4 p-4 rounded-lg ${i === 0 ? "bg-superficie-2" : ""}`}
-        >
-          <span className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${cor[e.tipo]}`} />
-          <div className="flex-1">
-            <div className="flex items-baseline justify-between gap-4">
-              <span className="font-semibold text-[0.95rem]">{e.titulo}</span>
-              <span className="rotulo text-tinta-3 shrink-0">{e.quando}</span>
+        <Revelar key={e.titulo} atraso={0.15 + i * 0.12} y={16}>
+          <div className={`flex gap-4 p-4 rounded-2xl ${i === 0 ? "bg-superficie-2" : ""}`}>
+            <span className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${cor[e.tipo]} ${i === 0 ? "animar-piscar" : ""}`} />
+            <div className="flex-1">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="font-semibold text-[0.95rem]">{e.titulo}</span>
+                <span className="rotulo text-tinta-3 shrink-0">{e.quando}</span>
+              </div>
+              <p className="text-tinta-2 text-[0.87rem] mt-1">{e.texto}</p>
             </div>
-            <p className="text-tinta-2 text-[0.87rem] mt-1">{e.texto}</p>
           </div>
-        </div>
+        </Revelar>
       ))}
     </div>
   );

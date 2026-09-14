@@ -103,6 +103,12 @@ export const IconeCheck = (p: Props) => (
   </Base>
 );
 
+export const IconePlay = (p: Props) => (
+  <Base {...p}>
+    <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none" />
+  </Base>
+);
+
 export const IconeSeta = (p: Props) => (
   <Base {...p}>
     <path d="M5 12h14M13 6l6 6-6 6" />
