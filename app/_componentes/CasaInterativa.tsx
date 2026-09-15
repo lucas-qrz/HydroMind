@@ -10,7 +10,7 @@
  */
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { COMODOS, type IdComodo } from "./comodos";
 
@@ -30,6 +30,30 @@ export default function CasaInterativa() {
   const [foco, setFoco] = useState<IdComodo | null>(null);
   const reduzido = useReducedMotion() ?? false;
 
+  // Telas de toque não têm "passar o mouse": os rótulos ficam sempre visíveis
+  // e os textos falam em tocar, não em clicar.
+  const [semHover, setSemHover] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none)");
+    const atualizar = () => setSemHover(mq.matches);
+    atualizar();
+    mq.addEventListener("change", atualizar);
+    return () => mq.removeEventListener("change", atualizar);
+  }, []);
+
+  // Fora da tela, o 3D para de renderizar.
+  const area = useRef<HTMLDivElement>(null);
+  const [visivel, setVisivel] = useState(true);
+  useEffect(() => {
+    const el = area.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => setVisivel(e.isIntersecting), {
+      rootMargin: "120px",
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const atual = COMODOS.find((c) => c.id === (hover ?? foco));
   const alternarFoco = (id: IdComodo) => setFoco((f) => (f === id ? null : id));
 
@@ -44,7 +68,8 @@ export default function CasaInterativa() {
   return (
     <div className="relative">
       <div
-        className="relative h-[360px] sm:h-[440px] lg:h-[520px]"
+        ref={area}
+        className="relative h-[340px] sm:h-[440px] lg:h-[520px]"
         aria-hidden="true"
         onPointerEnter={() => setSobreCasa(true)}
         onPointerLeave={() => {
@@ -55,8 +80,10 @@ export default function CasaInterativa() {
         <Casa3D
           hover={hover}
           foco={foco}
-          sobreCasa={sobreCasa}
+          sobreCasa={sobreCasa || semHover}
           reduzido={reduzido}
+          ativo={visivel}
+          leve={semHover}
           onHover={setHover}
           onFoco={alternarFoco}
         />
@@ -99,7 +126,9 @@ export default function CasaInterativa() {
               <p className="text-[0.84rem] text-tinta mt-2.5 font-medium">{atual.sensor}</p>
               <p className="text-[0.84rem] text-tinta-2 mt-1 leading-snug">{atual.detecta}</p>
               {foco !== atual.id && (
-                <p className="rotulo text-agua mt-3">Clique para aproximar</p>
+                <p className="rotulo text-agua mt-3">
+                  {semHover ? "Toque para aproximar" : "Clique para aproximar"}
+                </p>
               )}
             </motion.div>
           ) : (
@@ -108,13 +137,15 @@ export default function CasaInterativa() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="hidden sm:flex items-center gap-2.5 rounded-full border border-linha bg-superficie/90 backdrop-blur px-4 py-2.5 shadow-md w-fit"
+              className="flex items-center gap-2.5 rounded-full border border-linha bg-superficie/90 backdrop-blur px-4 py-2.5 shadow-md w-fit mx-auto sm:mx-0"
             >
               <span className="relative flex h-2 w-2">
                 <span className="absolute inset-0 rounded-full bg-agua animate-ping opacity-70" />
                 <span className="relative h-2 w-2 rounded-full bg-agua" />
               </span>
-              <span className="text-[0.84rem] text-tinta-2">Passe o mouse pela casa</span>
+              <span className="text-[0.84rem] text-tinta-2">
+                {semHover ? "Toque em um cômodo" : "Passe o mouse pela casa"}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>

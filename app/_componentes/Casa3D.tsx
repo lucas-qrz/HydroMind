@@ -55,6 +55,10 @@ export interface PropsCasa {
   foco: IdComodo | null;
   sobreCasa: boolean;
   reduzido: boolean;
+  /** `false` quando a casa saiu da tela: a renderização para e poupa bateria. */
+  ativo: boolean;
+  /** Telas de toque: menos resolução e sombra menor, para celulares simples. */
+  leve: boolean;
   onHover: (id: IdComodo | null) => void;
   onFoco: (id: IdComodo) => void;
 }
@@ -65,7 +69,8 @@ export default function Casa3D(props: PropsCasa) {
       orthographic
       shadows
       flat
-      dpr={[1, 2]}
+      frameloop={props.ativo ? "always" : "never"}
+      dpr={props.leve ? [1, 1.5] : [1, 2]}
       camera={{ position: [10.8, 9.45, 10], zoom: 16, near: 0.1, far: 100 }}
       gl={{ antialias: true, alpha: true }}
       style={{ touchAction: "pan-y" }}
@@ -83,7 +88,7 @@ export default function Casa3D(props: PropsCasa) {
 const DESLOCAMENTO = new THREE.Vector3(10, 9, 10);
 const CENTRO = new THREE.Vector3(0.8, 0.45, 0);
 
-function Cena({ hover, foco, sobreCasa, reduzido, onHover, onFoco }: PropsCasa) {
+function Cena({ hover, foco, sobreCasa, reduzido, leve, onHover, onFoco }: PropsCasa) {
   const grupo = useRef<THREE.Group>(null);
   const olhar = useRef(CENTRO.clone());
   const alvo = useMemo(() => new THREE.Vector3(), []);
@@ -140,7 +145,7 @@ function Cena({ hover, foco, sobreCasa, reduzido, onHover, onFoco }: PropsCasa) 
         position={[5, 11, 6]}
         intensity={1.5}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={leve ? [512, 512] : [1024, 1024]}
         shadow-camera-left={-8}
         shadow-camera-right={8}
         shadow-camera-top={8}

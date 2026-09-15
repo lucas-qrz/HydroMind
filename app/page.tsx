@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CasaInterativa from "./_componentes/CasaInterativa";
 import Abas from "./_componentes/Abas";
+import MenuCelular from "./_componentes/MenuCelular";
 import { Revelar } from "./_componentes/Revelar";
 import {
   IconeAmbiente,
@@ -468,8 +469,8 @@ export default function Site() {
 
       {/* ============ EM AÇÃO ============ */}
       <section className="escuro bg-fundo text-tinta relative overflow-hidden">
-        <Esfera className="left-[4%] top-[14%] w-8 h-8" cor="var(--agua)" atraso="-3s" />
-        <Esfera className="right-[46%] bottom-[10%] w-5 h-5" cor="var(--bom)" atraso="-1s" />
+        <Esfera className="left-[4%] top-[14%] w-8 h-8 hidden sm:block" cor="var(--agua)" atraso="-3s" />
+        <Esfera className="right-[46%] bottom-[10%] w-5 h-5 hidden sm:block" cor="var(--bom)" atraso="-1s" />
         <div className="relative mx-auto max-w-[1240px] px-6 py-28 grid gap-14 lg:grid-cols-2 items-center">
           <Revelar>
             <p className="rotulo text-agua">O produto em ação</p>
@@ -595,9 +596,9 @@ export default function Site() {
               "radial-gradient(50% 80% at 50% 100%, color-mix(in srgb, var(--agua) 22%, transparent), transparent 70%)",
           }}
         />
-        <Esfera className="left-[12%] top-[22%] w-9 h-9" cor="var(--agua)" atraso="-2s" />
-        <Esfera className="right-[14%] top-[30%] w-6 h-6" cor="var(--bom)" atraso="-5s" />
-        <Esfera className="right-[26%] bottom-[34%] w-4 h-4" cor="var(--alerta)" atraso="-3s" />
+        <Esfera className="left-[12%] top-[22%] w-9 h-9 hidden sm:block" cor="var(--agua)" atraso="-2s" />
+        <Esfera className="right-[14%] top-[30%] w-6 h-6 hidden sm:block" cor="var(--bom)" atraso="-5s" />
+        <Esfera className="right-[26%] bottom-[34%] w-4 h-4 hidden sm:block" cor="var(--alerta)" atraso="-3s" />
 
         <Revelar className="relative mx-auto max-w-[1240px] px-6 py-32 text-center">
           <h2 className="titulo text-[clamp(2.2rem,5.4vw,4rem)] max-w-[18ch] mx-auto">
@@ -696,13 +697,16 @@ function Navegacao() {
           <a href="#para-quem" className="hover:text-tinta transition">Para quem</a>
           <a href="#planos" className="hover:text-tinta transition">Planos</a>
         </nav>
-        <Link
-          href="/painel"
-          className="rounded-full bg-tinta px-5 py-2.5 text-[0.9rem] font-semibold text-fundo whitespace-nowrap hover:bg-agua transition"
-        >
-          <span className="sm:hidden">Demonstração</span>
-          <span className="hidden sm:inline">Ver demonstração</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* No celular o botão fica dentro do menu, para não espremer o topo. */}
+          <Link
+            href="/painel"
+            className="hidden sm:inline-flex rounded-full bg-tinta px-5 py-2.5 text-[0.9rem] font-semibold text-fundo whitespace-nowrap hover:bg-agua transition"
+          >
+            Ver demonstração
+          </Link>
+          <MenuCelular />
+        </div>
       </div>
     </header>
   );
