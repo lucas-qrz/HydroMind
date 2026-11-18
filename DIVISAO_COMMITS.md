@@ -1,6 +1,6 @@
 # Divisão dos arquivos em seis commits
 
-A ordem segue os seis prompts: **Lucas, Leo, Bazinga, JP, DG, Caio**. Cada arquivo pertence a uma única parte. `node scripts/check.mjs` verifica a distribuição.
+A ordem segue os seis prompts: **Lucas, Leo, Murillo, JP, DG, Caio**. Cada arquivo pertence a uma única parte. `node scripts/check.mjs` verifica a distribuição.
 
 Os nomes representam responsabilidades de revisão e integração. Cada integrante deve revisar, entender e testar sua parte e fazer o próprio commit com sua conta Git. Nenhum commit foi feito automaticamente.
 
