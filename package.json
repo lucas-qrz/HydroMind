@@ -1,0 +1,15 @@
+{
+  "name": "hydromind-agua-alerta",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Protótipo acadêmico navegável Água Alerta — Hydro Mind",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

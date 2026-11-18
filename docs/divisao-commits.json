@@ -1,0 +1,102 @@
+{
+  "project": "Hydro Mind · Água Alerta",
+  "purpose": "Responsabilidades para revisão e integração. Não altera autoria Git.",
+  "parts": [
+    {
+      "number": 1,
+      "owner": "Lucas",
+      "title": "Conta, perfil, configurações e base compartilhada",
+      "message": "feat(conta): criar base do app, conta e configuracoes",
+      "files": [
+        ".gitignore",
+        "DIVISAO_COMMITS.md",
+        "README.md",
+        "assets/mark.svg",
+        "docs/HANDOFF.md",
+        "docs/ROTEIRO_APRESENTACAO.md",
+        "docs/VALIDACAO.md",
+        "docs/divisao-commits.json",
+        "docs/partes/1-Lucas.md",
+        "docs/requisitos-originais.txt",
+        "index.html",
+        "iniciar.cmd",
+        "package.json",
+        "scripts/browser-check.mjs",
+        "scripts/build.mjs",
+        "scripts/check.mjs",
+        "scripts/ownership.mjs",
+        "scripts/preparar-commit.mjs",
+        "server.mjs",
+        "src/app.js",
+        "src/core/logic.js",
+        "src/core/store.js",
+        "src/core/ui.js",
+        "src/modules/account.js",
+        "src/styles.css",
+        "tests/account.test.mjs",
+        "tests/integration.test.mjs"
+      ]
+    },
+    {
+      "number": 2,
+      "owner": "Caio",
+      "title": "Dashboard e monitoramento em tempo real",
+      "message": "feat(dashboard): adicionar monitoramento e detalhe dos sensores",
+      "files": [
+        "docs/partes/2-Caio.md",
+        "src/modules/dashboard.css",
+        "src/modules/dashboard.js",
+        "tests/dashboard.test.mjs"
+      ]
+    },
+    {
+      "number": 3,
+      "owner": "Leo",
+      "title": "Sensores, pareamento e manutenção",
+      "message": "feat(sensores): implementar pareamento, saude e planejamento",
+      "files": [
+        "docs/partes/3-Leo.md",
+        "src/modules/sensors.css",
+        "src/modules/sensors.js",
+        "tests/sensors.test.mjs"
+      ]
+    },
+    {
+      "number": 4,
+      "owner": "Bazinga",
+      "title": "Alertas, notificações e metas",
+      "message": "feat(alertas): adicionar alertas, notificacoes e metas",
+      "files": [
+        "docs/partes/4-Bazinga.md",
+        "src/modules/alerts.css",
+        "src/modules/alerts.js",
+        "tests/alerts.test.mjs"
+      ]
+    },
+    {
+      "number": 5,
+      "owner": "JP",
+      "title": "Economia, histórico, dicas e condomínio",
+      "message": "feat(economia): implementar historico, comparacoes e exportacao",
+      "files": [
+        "docs/partes/5-JP.md",
+        "src/modules/economy-data.js",
+        "src/modules/economy.css",
+        "src/modules/economy.js",
+        "tests/economy.test.mjs"
+      ]
+    },
+    {
+      "number": 6,
+      "owner": "DG",
+      "title": "Planos, pagamento, instalação e suporte",
+      "message": "feat(servicos): adicionar planos, instalacao e atendimento",
+      "files": [
+        "docs/partes/6-DG.md",
+        "src/modules/services.css",
+        "src/modules/services.js",
+        "tests/services.test.mjs"
+      ]
+    }
+  ]
+}

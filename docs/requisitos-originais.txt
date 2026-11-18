@@ -1,0 +1,200 @@
+PROMPTS FIGMA - ÁGUA ALERTA (HYDRO MIND) - VERSÃO COMPLETA
+Como usar: cada pessoa cola o BLOCO BASE e, logo depois, o prompt da sua parte.
+
+
+################################################################
+BLOCO BASE (todos colam antes da sua parte)
+################################################################
+
+Você é um designer de UX/UI sênior. Vamos desenhar o aplicativo "Água Alerta", da startup Hydro Mind (Campinas/SP), que monitora o consumo de água em tempo real com sensores IoT (HM-FLOW-01, faixa de 1 a 30 L/min, conexão Bluetooth/Wi-Fi) e IA que detecta vazamentos. Público: moradores de residências, condomínios, empresas e escolas. Idioma da interface: português do Brasil. Moeda: R$.
+
+IDENTIDADE VISUAL (obrigatório, igual em todas as telas):
+- Cores: Azul-marinho #0B1F3F (textos e superfícies escuras), Azul petróleo #1D7396 (cor primária de botões e destaques), Ciano #35C8E0 (dados, gráficos e acentos), Fundo claro #F3F8FB, Branco #FFFFFF (cards), Cinza-azulado #5B7089 (textos secundários).
+- Cores de status: Verde #2E8B57 (ok/consumo normal), Âmbar #E8A33D (atenção/consumo elevado), Vermelho #C0392B (vazamento/manutenção urgente).
+- Tipografia: títulos em Noto Serif Bold; textos e interface em Inter (Regular 14–16, Semibold 14–16). Dados numéricos em Inter Semibold.
+- Estilo: limpo, moderno, cantos arredondados de 16 px nos cards, sombras suaves, ícones de linha (Lucide ou Phosphor), gotas d'água como elemento gráfico discreto. Modo claro como padrão.
+- Acessibilidade: contraste mínimo WCAG AA, alvos de toque de pelo menos 44 px, textos nunca abaixo de 12 px, estados nunca indicados só por cor (usar também ícone e texto).
+
+FORMATOS:
+- Mobile: frame 390 × 844 (iPhone 14). Desktop/web (apenas onde indicado): 1440 × 1024.
+- Navegação principal mobile: barra inferior com 5 abas: Início, Sensores, Alertas, Economia, Mais.
+- Header padrão: título da tela à esquerda, ícone de notificação com badge à direita.
+
+COMPONENTES E ORGANIZAÇÃO:
+- Use Auto Layout, Variables/Styles de cor e texto e componentes reutilizáveis com o prefixo "HM/" (ex.: HM/Button/Primary, HM/Card/Metric, HM/Input/Text, HM/Badge/Status, HM/Toast).
+- Nomeie cada frame como "[Parte]-[Fluxo]-[Estado]" (ex.: "P1-Cadastro-Erro").
+- Para cada tela com dados, desenhe os estados: carregando (skeleton), vazio, erro (com botão "Tentar novamente") e sucesso. Quando houver sensor, desenhe também o estado offline.
+- Conecte os frames em um protótipo navegável (Prototype), com setas de fluxo.
+
+DADOS DE EXEMPLO (fictícios, usar sempre os mesmos):
+- Usuária: Marina Souza, marina.souza@email.com, (19) 99876-5432.
+- Sensores: Cozinha, Banheiro, Área de serviço, Jardim, Caixa d'água.
+- Consumo hoje: 412 L. Acumulado no mês: 8,2 m³. Tarifa: R$ 8,50/m³. Gasto estimado no mês: R$ 69,70.
+- Alerta de exemplo: "Água correndo sem parar há 45 min no Banheiro, vazão de 0,31 L/min".
+
+Entregue frames limpos, alinhados em grade de 8 px, prontos para handoff.
+
+
+################################################################
+PARTE 1 - CONTA, PERFIL E CONFIGURAÇÕES
+################################################################
+
+PARTE 1: CONTA, PERFIL E CONFIGURAÇÕES. Desenhe, em mobile (390 × 844), e em desktop (1440 × 1024) somente para cadastro e login:
+
+A) Entrada
+1. Splash com logo "Hydro Mind / Água Alerta" sobre fundo azul-marinho com gotas.
+2. Boas-vindas com 3 slides curtos (monitore em tempo real / receba alertas / economize) e botões "Criar conta" e "Já tenho conta".
+
+B) Cadastro
+3. Formulário com nome, e-mail ou telefone (com máscara (99) 99999-9999) e senha, checkbox de aceite da LGPD com link para a política, e botão "Criar conta". Estados: campo vazio, e-mail inválido, telefone inválido, e-mail ou telefone já cadastrado (409), carregando.
+4. Indicador de requisitos da senha em tempo real: mínimo de 8 caracteres, maiúscula, minúscula, número e caractere especial, cada um com ícone de check ou pendente. Botão bloqueado enquanto não cumprir.
+5. Código de verificação de 6 dígitos (válido por 15 minutos), com contador, botão "Reenviar código" e limite de 3 tentativas. Estados: código incorreto, tentativas esgotadas, sucesso.
+
+C) Login e recuperação de senha
+6. Login com e-mail/telefone e senha, ícone de mostrar senha, link "Esqueci minha senha". Estado de erro de credenciais.
+7. Fluxo de recuperação (5 telas): informar e-mail, confirmação "enviamos um link", nova senha com indicador de força, sucesso, link expirado (com botão para solicitar novo). Incluir erro "a nova senha não pode ser igual à atual".
+
+D) Perfil e configurações (aba "Mais")
+8. Menu "Mais" com lista: Meu perfil, Compartilhar acesso, Notificações, Acessibilidade, Planos e pagamento, Tutoriais, Suporte, Avaliar o produto, Sair.
+9. Editar perfil: foto, nome, e-mail, telefone, endereço, tipo de imóvel (casa, apartamento, empresa, escola, condomínio), com validação e toast de sucesso.
+10. Compartilhar acesso: lista de pessoas com acesso (nome, e-mail, permissão "Só visualizar" ou "Gerenciar"), botão "Convidar" com modal de e-mail e permissão, opção de remover acesso.
+11. Acessibilidade: tamanho da fonte (3 níveis), alto contraste, modo escuro, reduzir animações, compatibilidade com leitor de tela, legendas sempre ativas nos vídeos.
+12. Avaliar o produto: nota de 1 a 5 estrelas, campo de comentário, categorias (app, sensor, instalação, atendimento), tela de agradecimento.
+
+Entregue também o protótipo navegável ligando splash → boas-vindas → cadastro → verificação → login → home (pode ser um frame placeholder "Início").
+
+
+################################################################
+PARTE 2 - DASHBOARD E MONITORAMENTO EM TEMPO REAL
+################################################################
+
+PARTE 2: DASHBOARD E MONITORAMENTO EM TEMPO REAL. Esta é a tela principal do app. Desenhe em mobile (390 × 844) E em web (1440 × 1024), com breakpoints definidos (mobile, tablet 768, desktop).
+
+1. Início/Dashboard (aba "Início") contendo:
+   - Saudação "Olá, Marina" e resumo do imóvel.
+   - Seletor de sensor (chips: Todos, Cozinha, Banheiro, Área de serviço, Jardim, Caixa d'água), com indicador de status em cada chip (verde, âmbar, vermelho).
+   - Gráfico de linha de vazão em tempo real em L/min, com seletor de janela de tempo (5 min, 1 h, 24 h), alternância entre "Sensor individual" e "Agregado", faixa de consumo normal em verde e elevada em âmbar, linha de limite tracejada e tooltip ao tocar.
+   - Cards de consumo acumulado: "Hoje: 412 L" e "Mês: 8,2 m³", com variação em relação ao período anterior.
+   - Card de previsão: "Previsão para o fim do mês: 11,4 m³ (R$ 96,90)" com mini gráfico de tendência.
+   - Card "Status dos sensores": 5 sensores com ponto de status e bateria.
+2. Estados do dashboard (um frame para cada): carregando (skeleton), vazio (sem leituras: "Ainda sem leituras. Instale seu primeiro sensor" com botão), erro de API (com "Tentar novamente"), sensor offline (banner âmbar "Banheiro sem conexão há 2 h"), alerta ativo (banner vermelho no topo "Possível vazamento no Banheiro" com botão "Ver alerta").
+3. Detalhe do sensor: nome do local, vazão atual grande (L/min), gráfico, consumo do dia, última leitura (horário), bateria, sinal, botão "Renomear" e "Ajustar limite".
+4. Ajustar limite do sensor (bottom sheet): limite de vazão máximo (L/min) e duração mínima (minutos) com sliders, texto explicativo de que picos curtos são ignorados e botão "Restaurar padrão do local".
+5. Versão web do dashboard: sidebar à esquerda com a navegação, gráfico grande ao centro, cards de métricas no topo e lista de sensores à direita.
+6. Página "Guia de tokens do dashboard": swatches com as cores de consumo normal, elevado e crítico, com a razão de contraste de cada uma sobre o fundo, comprovando AA.
+
+Entregue protótipo navegável: Dashboard → Detalhe do sensor → Ajustar limite, e alternância entre os estados.
+
+
+################################################################
+PARTE 3 - SENSORES
+################################################################
+
+PARTE 3: SENSORES. Desenhe em mobile (390 × 844), aba "Sensores".
+
+A) Lista de sensores
+1. Lista dos 5 sensores com ícone do local, nome, status em cor + ícone + texto (OK, Atenção, Manutenção), última leitura, bateria em %, e botão "+ Adicionar sensor". Estado vazio com ilustração e CTA.
+
+B) Pareamento Bluetooth (BLE), fluxo completo
+2. Introdução: "Aproxime o celular do sensor e ligue-o" com ilustração do HM-FLOW-01.
+3. Solicitação de permissões (Bluetooth e localização no Android), com explicação do motivo de cada uma.
+4. Permissão negada, e "negada permanentemente" com botão "Abrir configurações".
+5. Bluetooth desligado: aviso com botão "Ativar Bluetooth".
+6. Buscando sensores: animação de radar, timeout de 15 s, botão "Buscar novamente".
+7. Lista de dispositivos encontrados (nome, identificador, intensidade do sinal RSSI em barras), atualizando em tempo real, sem duplicatas.
+8. Estados de conexão: conectando, pareando, conectado com sucesso.
+9. Erros: pareamento recusado, tempo esgotado, desconexão durante o pareamento (com "Tentar novamente"), e "Este sensor já está vinculado a outra conta" (409) com botão "Falar com o suporte".
+10. Nomear o sensor: escolher o local (Cozinha, Banheiro, Área de serviço, Jardim, Caixa d'água, Outro com campo livre), com ícones.
+
+C) Saúde e manutenção
+11. Tela "Saúde dos sensores": lista com indicador verde, amarelo e vermelho, e legenda do significado de cada cor (bateria abaixo de 20%, mais de 24 h sem enviar dados, leitura fora do padrão).
+12. Detalhe de saúde do sensor: última leitura, nível de bateria, qualidade do sinal, e histórico de manutenções em linha do tempo (tipo, gravidade, aberto em, resolvido em, status).
+13. Aviso de perda de conexão: banner e modal "Sensor da Cozinha perdeu conexão", com passos de solução.
+14. Aviso de manutenção: bateria baixa (20%) e manutenção urgente.
+
+D) Planejamento
+15. "Quantos sensores devo instalar?": questionário curto (tipo de imóvel, número de banheiros, cozinha, área de serviço, jardim, caixa d'água) que termina em uma recomendação ("Recomendamos 5 sensores") com a lista dos pontos e botão "Ver planos".
+
+Entregue protótipo navegável do fluxo de pareamento completo e das variações de erro.
+
+
+################################################################
+PARTE 4 - ALERTAS, NOTIFICAÇÕES E METAS
+################################################################
+
+PARTE 4: ALERTAS, NOTIFICAÇÕES E METAS. Desenhe em mobile (390 × 844), aba "Alertas".
+
+A) Lista de alertas
+1. Lista de alertas com filtros por período (hoje, 7 dias, 30 dias, personalizado) e por sensor (chips), cards com ícone de gravidade, título, sensor, vazão, horário, e indicador de lido/não lido. Paginação com "Carregar mais". Estados: carregando, vazio ("Nenhum alerta. Tudo certo com a sua água"), erro.
+
+B) Detalhe e ação
+2. Detalhe do alerta de vazamento: faixa vermelha, "Água correndo sem parar há 45 min", sensor Banheiro, vazão 0,31 L/min, gráfico do trecho do evento com o limite, "Possível ponto do vazamento: descarga do vaso sanitário" com ícone, horário de início, e botões "Já resolvi", "Ignorar este alerta" e "Fechar o registro de água".
+3. Modal de confirmação para "Fechar o registro remotamente" (com aviso de que a água do imóvel será interrompida), estado carregando, sucesso e falha de comunicação.
+4. Alerta resolvido: versão do detalhe em verde com horário de resolução e um resumo de quanto foi desperdiçado em litros e R$.
+
+C) Notificações push
+5. Mockups de notificação push na tela bloqueada do celular (iOS e Android), com título "Possível vazamento no Banheiro", corpo com vazão e horário, e a mesma notificação com app aberto (banner interno). Mostrar também o deep link levando ao detalhe.
+6. Alerta "Consumo detectado fora de casa" (modo ausente), com botão "Estou em casa".
+7. Tela do modo "Estou fora de casa": ativar com data/hora de retorno e explicação.
+
+D) Preferências
+8. Personalizar notificações: interruptores por tipo (vazamento, consumo elevado, sensor offline, bateria baixa, manutenção, dicas, resumo semanal), por canal (push, e-mail, WhatsApp, SMS) e horário silencioso.
+
+E) Metas
+9. Definir meta de redução de consumo: escolher o percentual (5%, 10%, 15%, 20% ou personalizado), período (mensal) e exibir o valor-alvo em m³ e R$.
+10. Acompanhar a meta: barra de progresso circular, "Você está 8% abaixo da média", dias restantes, conquistas (selos de sustentabilidade) e estados de meta atingida e meta não atingida.
+
+Entregue protótipo navegável: Lista → Detalhe → Fechar registro → Resolvido, e o caminho Push → Detalhe.
+
+
+################################################################
+PARTE 5 - ECONOMIA, HISTÓRICO E DICAS
+################################################################
+
+PARTE 5: ECONOMIA, HISTÓRICO E DICAS. Desenhe em mobile (390 × 844), aba "Economia", e a tela de comparação também em desktop (1440 × 1024).
+
+A) Gasto e economia
+1. Tela principal "Economia": card grande "Você já economizou R$ 148,20 desde a instalação" com destaque para o retorno acumulado, gasto do mês em R$ (com tarifa usada), comparação com o consumo de referência de antes da instalação, e gráfico de barras mensal "gasto vs referência". Estados: carregando, vazio ("Precisamos de alguns dias de leitura"), erro.
+2. Formulário da tarifa por m³: campo com valor atual carregado, vírgula como decimal, mensagem de erro "Informe um valor maior que zero, por exemplo 8,50", estados carregando, sucesso (toast) e erro da API.
+3. Consumo de referência: tela para informar o consumo médio de antes da instalação (a partir das contas antigas), com 3 campos de meses e botão "Usar média".
+
+B) Histórico e comparação
+4. Histórico de consumo com seletor de agregação (dia, semana, mês), seletor de intervalo de datas e gráfico. Estados: período sem dados, datas inválidas (início maior que o fim) com erro.
+5. Comparar períodos: seletor de Período A e Período B (ex.: este mês vs mês passado), gráfico de barras agrupadas (ou linhas sobrepostas) alinhado por dia relativo (dia 1, dia 2...), e destaque da diferença percentual ("−12% em relação ao mês passado"). Tratar períodos com tamanhos diferentes e ausência de dados em um dos lados.
+6. Comparar com residências parecidas: gráfico "Você vs média de imóveis semelhantes", com mensagem "Você gasta 18% a mais" ou "abaixo da média", e privacidade explicada em uma linha.
+7. Exportar histórico: modal com escolha de formato (PDF ou planilha), período e sensores, com estados gerando, pronto (compartilhar/baixar) e erro, e opção "Enviar ao síndico".
+
+C) Dicas
+8. Tela "Dicas de economia": lista de cards (título e texto curto, ícone, prioridade) personalizados pelo perfil de consumo (baixo, médio, alto, pico de manhã, tarde ou noite), com etiqueta do perfil no topo. Estados: carregando (skeleton), lista vazia, erro com "Tentar novamente", e dicas genéricas quando faltam dados.
+
+D) Condomínio
+9. Visão do responsável por condomínio: consumo por unidade (lista ou tabela ordenável com apartamento, consumo do mês, variação e status), destaque das unidades que mais gastam e filtro por bloco. Desenhar em mobile e desktop.
+
+Entregue protótipo navegável entre Economia → Histórico → Comparar → Exportar, e Economia → Dicas.
+
+
+################################################################
+PARTE 6 - PLANOS, PAGAMENTO, INSTALAÇÃO E SUPORTE
+################################################################
+
+PARTE 6: PLANOS, PAGAMENTO, INSTALAÇÃO E SUPORTE. Desenhe em mobile (390 × 844). Planos, pagamento e contato também em desktop (1440 × 1024).
+
+A) Planos e pagamento
+1. Escolha de plano: 3 cards (Mensal, Trimestral, Anual) com preço, economia do plano anual em destaque, lista do que está incluído (app, dashboard, IA, alertas) e botão "Assinar". Usar valores fictícios coerentes.
+2. Resumo do pedido: plano escolhido, preço, kit de sensores (se houver), total.
+3. Pagamento: abas "Pix", "Cartão de crédito" e "Cartão de débito". Crédito com número, validade, CVV, nome impresso e seletor de parcelas. Pix com QR Code, botão "Copiar código" e contador de expiração. Estados: processando, aprovado, recusado, Pix expirado.
+4. Gerenciar assinatura: plano atual, próxima cobrança, forma de pagamento, trocar plano, botão "Cancelar assinatura". Fluxo de cancelamento em 3 passos (motivo, oferta de retenção, confirmação) e tela final.
+
+B) Instalação
+5. Tela de tutoriais (menu "Mais"): lista de vídeo-aulas em cards com miniatura, título e duração. Estados: carregando, vazio, erro, sem conexão.
+6. Player de vídeo: play, pausa, barra de progresso, tela cheia, legenda ativável (CC), com versão em paisagem.
+7. Solicitar profissional: formulário com nome, endereço (preenchimento por CEP), tipo de imóvel, telefone, e-mail, observações sobre a rede de encanamento, e escolha de data e janela de horário. Confirmação com resumo.
+8. Acompanhar visita: linha do tempo de status (Agendada, Profissional a caminho, Em atendimento, Concluída), nome e foto do profissional, data e horário, orientações de preparo, e botões "Reagendar" e "Cancelar visita".
+9. Reagendar (seleção de nova data e horário) e Cancelar (confirmação com motivo), com estados de carregando, sucesso e erro.
+
+C) Suporte (SAC)
+10. Central de suporte: telefone em destaque, formulário de mensagem (nome, e-mail, telefone, mensagem), horário de atendimento "Segunda a sexta" com status "Aberto agora" ou "Fechado" e aviso destacado: "Mensagens fora do horário serão respondidas no próximo dia útil".
+11. Chat ao vivo com atendente humano: tela de conversa, mensagem automática fora do expediente, indicador de digitando.
+12. Meus chamados: lista com número de protocolo (ex.: SAC-20261110-0001), data, motivo e status (Aberto, Em andamento, Resolvido) em badges, e detalhe do chamado com histórico de status e botão "Abrir chat deste chamado".
+
+Entregue protótipo navegável: Planos → Pagamento → Aprovado, Tutoriais → Player, Solicitar profissional → Acompanhar visita, e Suporte → Chamado.
