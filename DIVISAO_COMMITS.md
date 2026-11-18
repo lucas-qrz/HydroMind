@@ -29,7 +29,7 @@ Não use `git add .` nestes seis commits. O script recusa misturar arquivos de o
 - `.gitignore`
 - `DIVISAO_COMMITS.md`
 - `README.md`
-- `assets/mark.svg`
+- `assets/mark.png`
 - `docs/HANDOFF.md`
 - `docs/ROTEIRO_APRESENTACAO.md`
 - `docs/VALIDACAO.md`

@@ -22,5 +22,5 @@ test('todos os destinos renderizados resolvem uma rota do protótipo',()=>{
 });
 test('servidor entrega aplicação e bloqueia acesso a código de testes e arquivos privados',async()=>{
   const server=createServer();await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port;
-  try{for(const p of ['/','/src/app.js','/assets/mark.svg','/src/styles.css'])assert.equal((await fetch(base+p)).status,200,p);for(const p of ['/package.json','/server.mjs','/docs/divisao-commits.json','/tests/integration.test.mjs','/missing','/%2e%2e/server.mjs'])assert.equal((await fetch(base+p)).status,404,p);}finally{await new Promise(resolve=>server.close(resolve));}
+  try{for(const p of ['/','/src/app.js','/assets/mark.png','/src/styles.css'])assert.equal((await fetch(base+p)).status,200,p);for(const p of ['/package.json','/server.mjs','/docs/divisao-commits.json','/tests/integration.test.mjs','/missing','/%2e%2e/server.mjs'])assert.equal((await fetch(base+p)).status,404,p);}finally{await new Promise(resolve=>server.close(resolve));}
 });
