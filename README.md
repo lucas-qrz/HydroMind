@@ -22,11 +22,11 @@ Login demonstrativo: `marina.souza@email.com` / `Hydro@2026`. Código de verific
 | Parte | Responsável pela revisão e integração | Entrega |
 | --- | --- | --- |
 | 1 | Lucas | Conta, perfil, configurações e base compartilhada |
-| 2 | Caio | Dashboard e monitoramento |
-| 3 | Leo | Sensores, pareamento e manutenção |
-| 4 | Bazinga | Alertas, notificações e metas |
-| 5 | JP | Economia, histórico, dicas e condomínio |
-| 6 | DG | Planos, pagamentos, instalação e suporte |
+| 2 | Leo | Dashboard e monitoramento |
+| 3 | Murillo | Sensores, pareamento e manutenção |
+| 4 | João | Alertas, notificações e metas |
+| 5 | Diego | Economia, histórico, dicas e condomínio |
+| 6 | Caio | Planos, pagamentos, instalação e suporte |
 
 Veja [DIVISAO_COMMITS.md](DIVISAO_COMMITS.md) para os arquivos exatos, ordem dos commits e como preparar cada parte. Os nomes representam a distribuição de responsabilidades para revisão e integração; não são autores Git criados automaticamente.
 
