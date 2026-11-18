@@ -62,7 +62,7 @@ git diff --cached
 git commit -m "feat(conta): criar base do app, conta e configuracoes"
 ```
 
-## 2. Caio — Dashboard e monitoramento em tempo real
+## 2. Leo — Dashboard e monitoramento em tempo real
 
 **4 arquivos:**
 
@@ -79,7 +79,7 @@ git diff --cached
 git commit -m "feat(dashboard): adicionar monitoramento e detalhe dos sensores"
 ```
 
-## 3. Leo — Sensores, pareamento e manutenção
+## 3. Murillo — Sensores, pareamento e manutenção
 
 **4 arquivos:**
 
@@ -96,7 +96,7 @@ git diff --cached
 git commit -m "feat(sensores): implementar pareamento, saude e planejamento"
 ```
 
-## 4. Bazinga — Alertas, notificações e metas
+## 4. João — Alertas, notificações e metas
 
 **4 arquivos:**
 
@@ -113,7 +113,7 @@ git diff --cached
 git commit -m "feat(alertas): adicionar alertas, notificacoes e metas"
 ```
 
-## 5. JP — Economia, histórico, dicas e condomínio
+## 5. Diego — Economia, histórico, dicas e condomínio
 
 **5 arquivos:**
 
@@ -131,7 +131,7 @@ git diff --cached
 git commit -m "feat(economia): implementar historico, comparacoes e exportacao"
 ```
 
-## 6. DG — Planos, pagamento, instalação e suporte
+## 6. Caio — Planos, pagamento, instalação e suporte
 
 **4 arquivos:**
 
